@@ -1,21 +1,45 @@
+// components/chat-assistant.tsx
 "use client"
 
 import type React from "react"
-
 import { useRef, useEffect, useState } from "react"
-import { Button } from "./ui/button"
-import { Input } from "./ui/input"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { MessageCircle, X, Send, Bot, User, Minimize2, Maximize2, Loader2, Zap } from "lucide-react"
-import { cn } from "../src/lib/utils"
-import { useAIAssistant } from "../hooks/use-ai-assistant"
-import { useModelViewer } from "../hooks/use-model-viewer"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "@/components/ui/card"
+import {
+  MessageCircle,
+  X,
+  Send,
+  Bot,
+  User,
+  Minimize2,
+  Maximize2,
+  Loader2,
+  Zap,
+  RotateCcw,
+  RotateY,
+  Move3D,
+  Scale as ScaleIcon,
+  Ruler,
+  Layers,
+} from "lucide-react"
+import { cn } from "@/lib/utils"
+import { useAIAssistant } from "@/hooks/use-ai-assistant"
+import { useModelViewer } from "@/hooks/use-model-viewer"
+import { executeToolCall } from "@/lib/tool-call"
+import type { ToolAction } from "@/types/tool-category"
 
 export function ChatAssistant({ id }: { id?: string }) {
   const [isOpen, setIsOpen] = useState(true)
   const [isMinimized, setIsMinimized] = useState(false)
-  const { messages, input, handleInputChange, handleSubmit, isLoading, error, processAIMessage } = useAIAssistant()
-  const { addObject, deleteSelected, updateScale, updatePosition, updateColor } = useModelViewer()
+
+  const viewerState = useModelViewer()
+  const aiState = useAIAssistant(viewerState)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -26,7 +50,7 @@ export function ChatAssistant({ id }: { id?: string }) {
 
   useEffect(() => {
     scrollToBottom()
-  }, [messages])
+  }, [aiState.messages])
 
   useEffect(() => {
     if (isOpen && !isMinimized && inputRef.current) {
@@ -34,15 +58,15 @@ export function ChatAssistant({ id }: { id?: string }) {
     }
   }, [isOpen, isMinimized])
 
-  const onSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!input.trim()) return
-    handleSubmit(e)
+    if (!aiState.input.trim()) return
 
-    // Optional: Process message after sending
-    setTimeout(() => {
-      processAIMessage?.(input)
-    }, 500)
+    aiState.handleSubmit(e)
+  }
+
+  const handleToolAction = (action: ToolAction, params?: Record<string, any>) => {
+    executeToolCall(action, viewerState, params)
   }
 
   if (!isOpen) {
@@ -50,9 +74,9 @@ export function ChatAssistant({ id }: { id?: string }) {
       <Button
         onClick={() => setIsOpen(true)}
         className="fixed top-20 right-4 z-50 rounded-full w-12 h-12 btn-logo-gradient text-white shadow-lg border-0"
-        aria-label="Open Grok AI Assistant"
+        aria-label="Open AI Assistant"
       >
-        <MessageCircle className="h-6 w-6" />
+        <MessageCircle className="h-6 w-6 animate-fade-in" />
       </Button>
     )
   }
@@ -70,7 +94,7 @@ export function ChatAssistant({ id }: { id?: string }) {
       <CardHeader className="p-3 border-b border-logo-purple/20 flex flex-row items-center justify-between space-y-0 bg-logo-gradient">
         <CardTitle className="text-sm font-medium flex items-center text-white">
           <Bot className="h-4 w-4 mr-2" />
-          Grok AI Assistant
+          AI Assistant
           <Zap className="h-3 w-3 ml-1 text-yellow-300" />
         </CardTitle>
         <div className="flex items-center space-x-1">
@@ -87,7 +111,7 @@ export function ChatAssistant({ id }: { id?: string }) {
             variant="ghost"
             size="sm"
             onClick={() => setIsOpen(false)}
-            aria-label="Close Grok AI Assistant"
+            aria-label="Close AI Assistant"
             className="h-6 w-6 p-0 text-white hover:bg-white/20"
           >
             <X className="h-3 w-3" />
@@ -99,15 +123,17 @@ export function ChatAssistant({ id }: { id?: string }) {
         <CardContent className="p-0">
           {/* Messages */}
           <div className="relative h-64 overflow-y-auto p-3 space-y-3 chat-messages">
-            {messages.length === 0 && !isLoading && (
+            {aiState.messages.length === 0 && !aiState.isLoading && (
               <div className="text-center text-gray-500 text-sm py-6">
                 <Zap className="h-8 w-8 text-yellow-400 mx-auto mb-2" />
                 <p className="font-medium">Powered by Grok AI</p>
-                <p className="text-xs mt-1">Ask me anything about 3D modeling, CAD tools, or design suggestions.</p>
+                <p className="text-xs mt-1">
+                  Ask me about 3D modeling tools, geometry, or design workflows.
+                </p>
               </div>
             )}
 
-            {messages.map((message) => (
+            {aiState.messages.map((message) => (
               <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div
                   className={cn(
@@ -115,6 +141,7 @@ export function ChatAssistant({ id }: { id?: string }) {
                     message.role === "user"
                       ? "bg-logo-gradient text-white ml-auto"
                       : "bg-gray-800/70 text-gray-300 border border-logo-purple/20 mr-auto",
+                    "whitespace-pre-line",
                   )}
                 >
                   <div className="flex items-start space-x-2">
@@ -126,13 +153,13 @@ export function ChatAssistant({ id }: { id?: string }) {
                     ) : (
                       <User className="h-4 w-4 mt-0.5 text-logo-cyan flex-shrink-0" />
                     )}
-                    <p className="text-sm whitespace-pre-line">{message.content}</p>
+                    <p className="text-sm">{message.content}</p>
                   </div>
                 </div>
               </div>
             ))}
 
-            {isLoading && (
+            {aiState.isLoading && (
               <div className="flex justify-start">
                 <div className="bg-gray-800/70 text-gray-300 rounded-lg px-3 py-2 border border-logo-purple/20">
                   <div className="flex items-center space-x-2">
@@ -154,12 +181,12 @@ export function ChatAssistant({ id }: { id?: string }) {
               </div>
             )}
 
-            {error && (
+            {aiState.error && (
               <div className="flex justify-start">
                 <div className="bg-red-900/70 text-red-300 rounded-lg px-3 py-2 border border-red-500/20">
                   <div className="flex items-center space-x-2">
                     <Bot className="h-4 w-4 text-red-400" />
-                    <p className="text-sm">Error: {error.message || error.toString()}</p>
+                    <p className="text-sm">Error: {aiState.error.message || aiState.error.toString()}</p>
                   </div>
                 </div>
               </div>
@@ -171,32 +198,36 @@ export function ChatAssistant({ id }: { id?: string }) {
 
           {/* Input */}
           <div className="p-3 border-t border-logo-purple/20">
-            <form onSubmit={onSubmit} className="flex items-center space-x-2">
+            <form onSubmit={handleSubmit} className="flex items-center space-x-2">
               <Input
                 ref={inputRef}
-                value={input}
-                onChange={handleInputChange}
-                placeholder="Ask Grok about 3D modeling..."
-                className="flex-1 border-logo-purple/30 focus:border-logo-cyan bg-slate-900/50 text-white"
-                disabled={isLoading}
+                value={aiState.input}
+                onChange={aiState.handleInputChange}
+                placeholder="Ask about 3D modeling..."
+                className="flex-1 border-logo-purple/30 focus:border-logo-cyan bg-slate-900/50 text-white placeholder:text-gray-400"
+                disabled={aiState.isLoading}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault()
-                    onSubmit(e)
+                    handleSubmit(e)
                   }
                 }}
               />
               <Button
                 type="submit"
                 size="icon"
-                disabled={isLoading || !input.trim()}
+                disabled={aiState.isLoading || !aiState.input.trim()}
                 className="btn-logo-gradient text-white border-0 hover:bg-logo-cyan/90"
               >
-                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                {aiState.isLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
               </Button>
             </form>
             <div className="text-xs text-gray-500 mt-1 text-center">
-              Powered by <span className="text-yellow-400">Grok AI</span>
+              Powered by <span className="text-yellow-400">Grok AI</span> • Type commands like “Add a box”, “Make it red”
             </div>
           </div>
         </CardContent>
