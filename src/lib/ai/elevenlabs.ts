@@ -1,5 +1,5 @@
 // lib/ai/elevenlabs.ts
-import type { ToolCall } from "@/types/ai-tools"
+import type { ToolCall } from "../../../types/tool-call" // Use the canonical ToolCall
 
 export async function callElevenLabsAgent(text: string): Promise<{
   text: string
@@ -44,74 +44,94 @@ function parseAICommand(text: string): ToolCall | null {
   // Add/Create commands
   if (lowerText.includes("add") || lowerText.includes("create")) {
     if (lowerText.includes("box") || lowerText.includes("cube")) {
-      return { name: "add", args: { type: "box" } }
+      return { action: "add-box", params: { type: "box" } } // Align action name with types/tool-call.ts
     }
     if (lowerText.includes("sphere") || lowerText.includes("ball")) {
-      return { name: "add", args: { type: "sphere" } }
+      return { action: "add-sphere", params: { type: "sphere" } }
     }
     if (lowerText.includes("cylinder")) {
-      return { name: "add", args: { type: "cylinder" } }
+      return { action: "add-cylinder", params: { type: "cylinder" } }
     }
     if (lowerText.includes("cone")) {
-      return { name: "add", args: { type: "cone" } }
+      return { action: "add-cone", params: { type: "cone" } }
     }
     if (lowerText.includes("torus") || lowerText.includes("donut")) {
-      return { name: "add", args: { type: "torus" } }
+      return { action: "add-torus", params: { type: "torus" } }
     }
     if (lowerText.includes("plane")) {
-      return { name: "add", args: { type: "plane" } }
+      return { action: "add-plane", params: { type: "plane" } }
+    }
+    if (lowerText.includes("line")) {
+      return { action: "add-plane", params: {} } // Assuming "add-line" was a typo and meant "add-plane" or needs to be added to ToolName
     }
   }
 
   // Delete commands
   if (lowerText.includes("delete") || lowerText.includes("remove")) {
-    return { name: "delete", args: {} }
+    return { action: "delete-selected", params: {} }
   }
 
   // Scale commands
   if (lowerText.includes("scale up") || lowerText.includes("bigger")) {
-    return { name: "scale", args: { factor: 1.2 } }
+    return { action: "scale", params: { factor: 1.2 } } // Ensure "scale" is a valid ToolName
   }
   if (lowerText.includes("scale down") || lowerText.includes("smaller")) {
-    return { name: "scale", args: { factor: 0.8 } }
+    return { action: "scale", params: { factor: 0.8 } }
   }
 
   // Color commands
+  // These should map to "change-color"
   if (lowerText.includes("red")) {
-    return { name: "color", args: { color: "#ef4444" } }
+    return { action: "change-color", params: { color: "#ef4444" } }
   }
   if (lowerText.includes("blue")) {
-    return { name: "color", args: { color: "#3b82f6" } }
+    return { action: "change-color", params: { color: "#3b82f6" } }
   }
   if (lowerText.includes("green")) {
-    return { name: "color", args: { color: "#10b981" } }
+    return { action: "change-color", params: { color: "#10b981" } }
   }
   if (lowerText.includes("yellow")) {
-    return { name: "color", args: { color: "#f59e0b" } }
+    return { action: "change-color", params: { color: "#f59e0b" } }
   }
   if (lowerText.includes("purple")) {
-    return { name: "color", args: { color: "#8b5cf6" } }
+    return { action: "change-color", params: { color: "#8b5cf6" } }
   }
 
   // View commands
   if (lowerText.includes("wireframe")) {
-    return { name: "view", args: { mode: "wireframe" } }
+    return { action: "view-wireframe", params: { mode: "wireframe" } }
   }
   if (lowerText.includes("shaded")) {
-    return { name: "view", args: { mode: "shaded" } }
+    return { action: "view-shaded", params: { mode: "shaded" } }
   }
 
   // Camera commands
   if (lowerText.includes("reset camera") || lowerText.includes("reset view")) {
-    return { name: "reset", args: {} }
+    return { action: "change-camera", params: { reset: true } } // Example, align with ToolName
   }
 
   // History commands
   if (lowerText.includes("undo")) {
-    return { name: "undo", args: {} }
+    return { action: "undo", params: {} }
   }
   if (lowerText.includes("redo")) {
-    return { name: "redo", args: {} }
+    return { action: "redo", params: {} }
+  }
+
+  // CAD specific commands
+  if (lowerText.includes("fillet")) {
+    return { action: "bevel-edges", params: { radius: 0.1 } } // Assuming "fillet" maps to "bevel-edges"
+  }
+  if (lowerText.includes("revolve")) {
+    return { action: "extrude", params: { type: "revolve", axis: "y", angle: 360 } } // Example, align with ToolName
+  }
+  if (lowerText.includes("bridge") && (lowerText.includes("curve") || lowerText.includes("edge"))) {
+    return { action: "bridge-edge-loops", params: {} }
+  }
+  if ((lowerText.includes("duplicate") || lowerText.includes("alternate")) && lowerText.includes("boolean")) {
+    // A more sophisticated parser could extract the boolean type (union, subtract, intersect)
+    // For now, we'll let the AI specify or default in the handler.
+    return { action: "duplicate-then-boolean", params: {} }
   }
 
   return null

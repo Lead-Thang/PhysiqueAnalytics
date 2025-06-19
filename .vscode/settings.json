@@ -1,0 +1,51 @@
+{
+  // Editor settings
+  "editor.tabSize": 2,
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+
+  // Files & search
+  "files.exclude": {
+    "**/.next": true,
+    "**/node_modules": true,
+    "**/out": true
+  },
+  "search.exclude": {
+    "**/.next": true,
+    "**/node_modules": true,
+    "**/out": true
+  },
+
+  // JavaScript / TypeScript
+  "javascript.implicitProjectConfig.strictNullChecks": true,
+  "typescript.tsserver.experimental.enableProjectDiagnostics": true,
+
+  // ESLint integration
+  "eslint.validate": [
+    "javascript",
+    "typescript",
+    "typescriptreact"
+  ],
+  "eslint.options": {
+    "extensions": [".js", ".jsx", ".ts", ".tsx"]
+  },
+
+  // Tailwind CSS IntelliSense
+  "tailwindCSS.includeLanguages": {
+    "plaintext": "html",
+    "razor": "html"
+  },
+  "tailwindCSS.emmetCompletions": true,
+  "tailwindCSS.classAttributes": ["class", "className", "ngClass"],
+  "tailwindCSS.experimental.classRegex": [
+    "class(['\"])(.*?)['\"]",
+    "className(['\"])(.*?)['\"]"
+  ],
+
+  // Disable conflicting extensions
+  "bitoAI.codeCompletion.enableAutoCompletion": false,
+  "CodeGPT.apiKey": "CodeGPT Plus Beta"
+}

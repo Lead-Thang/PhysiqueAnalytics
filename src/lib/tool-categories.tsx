@@ -1,4 +1,8 @@
-import { ToolCategory } from "../../types/tool-category"
+export type { ToolCategory } from "../../types/tool-category" // Re-export ToolCategory using 'export type'
+import type {
+  ToolCategory as ImportedToolCategory,
+  ToolAction, // Import ToolAction for consistent use
+} from "../../types/tool-category"; // Import ToolCategory for use in this file
 import React from "react"
 import {
   Box,
@@ -28,73 +32,23 @@ import {
   Copy,
   Grid3X3,
   CornerUpRight,
-  RotateY,
+
+  Spline, // Icon for Imprint Curve (or choose another suitable one)
+  Link2, // For Bridge Curves
 } from "lucide-react"
 
-export type ToolName =
-  | "add-box"
-  | "add-sphere"
-  | "add-cylinder"
-  | "add-cone"
-  | "add-torus"
-  | "add-plane"
-  | "add-wedge"
-  | "union"
-  | "subtract"
-  | "intersect"
-  | "extrude"
-  | "revolve"
-  | "sweep"
-  | "move"
-  | "move-3d"
-  | "rotate"
-  | "rotate-cw"
-  | "rotate-ccw"
-  | "scale"
-  | "mirror"
-  | "pattern"
-  | "measure-distance"
-  | "measure-angle"
-  | "measure-area"
-  | "measure-volume"
-  | "view-wireframe"
-  | "view-shaded"
-  | "animate-scene"
-  | "duplicate"
-  | "animate-object"
-  | "delete-selected"
-  | "undo"
-  | "redo"
-  // Mesh Editing
-  | "bevel-edges"
-  | "bridge-edge-loops"
-  | "subdivide"
-  | "loop-cut-and-slide"
-  | "offset-edge-slide"
-  | "knife-topology-tool"
-  | "bisect"
-  | "rotate-edge-cw"
-  | "edge-crease"
-  | "edge-bevel-weight"
-  | "mark-seam"
-  | "clear-seam"
-  | "mark-sharp"
-  | "clear-sharp"
-  | "set-sharpness-by-angle"
-  | "un-subdivide"
-  | "split"
-  | "separate"
-  | "dissolve-edges"
-  | "delete-edges"
+// Remove local ToolName definition; ToolAction from imported types is now the reference.
 
-interface Tool {
+// If this Tool interface is exported and consumed by other modules,
+// update its 'action' property to use the canonical ToolAction.
+export interface Tool {
   name: string
   icon: React.ReactNode
-  action: ToolName
+  action: ToolAction // Use imported ToolAction for consistency
   type: "shape" | "operation" | "transform" | "measure" | "view"
 }
 
-export const defaultToolCategories: ToolCategory[] = [
+export const defaultToolCategories: ImportedToolCategory[] = [
   {
     name: "Shapes",
     icon: <Box />,
@@ -118,6 +72,7 @@ export const defaultToolCategories: ToolCategory[] = [
       { name: "Subtract", icon: <Minus />, action: "subtract", type: "operation" },
       { name: "Intersect", icon: <Scissors />, action: "intersect", type: "operation" },
       { name: "Extrude", icon: <CornerUpRight />, action: "extrude", type: "operation" },
+      { name: "Duplicate Boolean", icon: <Copy />, action: "duplicate-then-boolean", type: "operation" },
     ],
   },
   {
@@ -169,13 +124,13 @@ export const defaultToolCategories: ToolCategory[] = [
       { name: "Bevel Edges", icon: <CornerUpRight />, action: "bevel-edges", type: "operation" },
       { name: "Bridge Edge Loops", icon: <Grid3X3 />, action: "bridge-edge-loops", type: "operation" },
       { name: "Subdivide", icon: <Plus />, action: "subdivide", type: "operation" },
-      { name: "Extrude Edges", icon: <CornerUpRight />, action: "extrude", type: "operation" },
+      { name: "Extrude Edges", icon: <CornerUpRight />, action: "extrude-edges", type: "operation" },
       { name: "Loop Cut and Slide", icon: <Move3D />, action: "loop-cut-and-slide", type: "operation" },
       { name: "Offset Edge Slide", icon: <Move3D />, action: "offset-edge-slide", type: "operation" },
       { name: "Knife Topology Tool", icon: <Scissors />, action: "knife-topology-tool", type: "operation" },
       { name: "Bisect", icon: <Scissors />, action: "bisect", type: "operation" },
-      { name: "Rotate Edge CW", icon: <RotateY />, action: "rotate-edge-cw", type: "operation" },
-      { name: "Rotate Edge CCW", icon: <RotateCcw />, action: "rotate-edge-cw", type: "operation" },
+      { name: "Rotate Edge CW", icon: <RotateCw />, action: "rotate-edge-cw", type: "operation" },
+      { name: "Rotate Edge CCW", icon: <RotateCcw />, action: "rotate-edge-ccw", type: "operation" },
       { name: "Edge Crease", icon: <Ruler />, action: "edge-crease", type: "operation" },
       { name: "Edge Bevel Weight", icon: <Ruler />, action: "edge-bevel-weight", type: "operation" },
       { name: "Mark Seam", icon: <Hexagon />, action: "mark-seam", type: "operation" },
@@ -188,6 +143,8 @@ export const defaultToolCategories: ToolCategory[] = [
       { name: "Separate", icon: <Copy />, action: "separate", type: "operation" },
       { name: "Dissolve Edges", icon: <Scissors />, action: "dissolve-edges", type: "operation" },
       { name: "Delete Edges", icon: <Trash2 />, action: "delete-edges", type: "operation" },
+      { name: "Bridge Curves", icon: <Link2 />, action: "bridge-curves", type: "operation" },
+      { name: "Imprint Curve", icon: <Spline />, action: "imprint-curve", type: "operation" },
     ],
   },
 ]

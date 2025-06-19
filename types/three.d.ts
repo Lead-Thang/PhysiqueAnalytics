@@ -1,8 +1,9 @@
 import { extend } from "@react-three/fiber"
 import * as THREE from "three"
 
-// Extend the fiber namespace with Three.js objects
-extend(THREE)
+// It's good practice to extend THREE for react-three-fiber in a central place,
+// like your main app setup or a dedicated three setup file, not necessarily in a .d.ts file.
+// However, if this is where you manage all three-related types, ensure extend(THREE) is called once in your application runtime.
 
 declare global {
   namespace JSX {
@@ -33,23 +34,6 @@ declare global {
       axesHelper: any
     }
   }
-}
-
-export interface ModelObject {
-  id: string
-  type: "box" | "sphere" | "cylinder"
-  position: [number, number, number]
-  rotation: [number, number, number]
-  scale: [number, number, number]
-  color: string
-  material?: THREE.Material
-  geometry?: THREE.BufferGeometry
-}
-
-export interface Tool {
-  name: string
-  icon: string
-  action: string
 }
 
 export interface Measurement {

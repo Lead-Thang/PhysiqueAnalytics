@@ -1,258 +1,366 @@
+// src/app/page.tsx
 "use client"
-import type React from "react"
-import { useState, useRef, useEffect } from "react"
-import { Navbar } from "../components/navbar"
-import { Hero } from "../components/hero"
-import { Button } from "../components/ui/button"
-import { Input } from "../components/ui/input"
-import { Card, CardContent } from "../components/ui/card"
-import { ArrowRight, Sparkles, ImageIcon, CuboidIcon as Cube, Lightbulb, Loader2 } from "lucide-react"
+
+import React, { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { cn } from "../src/lib/utils"
-import { FeatureCardSkeleton } from "../components/ui/feature-card-skeleton"
-import { ModelViewerSkeleton } from "../components/ui/model-viewer-skeleton"
+import { Navbar } from "@/components/navbar"
+import { Hero } from "@/components/hero"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card"
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs"
+import { useSearchParams } from "next/navigation"
+import {
+  Box,
+  Zap,
+  Sparkles,
+  Send,
+  RotateCcw,
+  Maximize2,
+  Loader2,
+  X,
+  LayoutDashboard,
+  Building,
+  TreePine,
+} from "lucide-react"
 
-// Predefined prompt options
-const promptOptions = [
-  "A modern office chair with ergonomic design",
-  "A minimalist desk lamp with adjustable brightness",
-  "A futuristic electric vehicle concept",
-  "A sustainable water bottle with temperature control",
-  "A smart home security device with camera",
-]
-
-export default function Home() {
+export default function HomePage() {
   const [prompt, setPrompt] = useState("")
-  const [isGenerating, setIsGenerating] = useState(false)
   const [generatedImage, setGeneratedImage] = useState<string | null>(null)
   const [generatedDescription, setGeneratedDescription] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<"prompt" | "image" | "description">("prompt")
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState("text")
   const inputRef = useRef<HTMLInputElement>(null)
+  const searchParams = useSearchParams()
+  const initialPrompt = searchParams.get("prompt") || ""
 
-  // Focus input on load
+  // Auto-focus input on load
   useEffect(() => {
-    if (inputRef.current) {
+    if (!isGenerating && inputRef.current) {
       inputRef.current.focus()
     }
-  }, [])
+  }, [isGenerating])
 
-  // Handle prompt submission
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!prompt.trim()) return
-    setIsGenerating(true)
-
-    // Simulate AI processing
-    setTimeout(() => {
-      setGeneratedImage("/placeholder.svg?height=512&width=512")
-      setGeneratedDescription(
-        `A 3D model of ${prompt} with the following features:
-- Ergonomic design with user comfort in mind
-- Modern aesthetic with clean lines
-- Sustainable materials for eco-friendly production
-- Smart functionality with IoT integration
-
-The design emphasizes both form and function, with attention to detail in the user experience.`,
-      )
-      setActiveTab("image")
-      setIsGenerating(false)
-    }, 3000)
+  // Handle keyboard shortcuts
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+      handleSubmit(e)
+    }
   }
 
-  // Handle random prompt selection
+  // Generate concept from prompt
+  const handleSubmit = async (e: React.FormEvent | React.KeyboardEvent<HTMLInputElement>) => {
+    e.preventDefault()
+    const trimmedPrompt = prompt.trim()
+    if (!trimmedPrompt) return
+
+    setIsGenerating(true)
+    setGeneratedImage(null)
+    setGeneratedDescription(null)
+    setActiveTab("image")
+
+    try {
+      const result = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: trimmedPrompt }),
+      })
+
+      if (!result.ok) throw new Error("Failed to generate concept")
+
+      const data = await result.json()
+      setGeneratedImage(data.image)
+      setGeneratedDescription(data.description || "")
+    } catch (err: any) {
+      console.error("Generation failed:", err)
+      setError(err.message || "Failed to generate concept. Please try again.")
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
+  // Random prompts
+  const promptOptions = [
+    "Create a modern office chair",
+    "Design a futuristic car",
+    "Build a robot arm",
+    "Generate a house",
+    "Make a logo in 3D",
+    "Design a smart home",
+    "Create a minimalist desk lamp",
+    "Design a sci-fi helmet",
+    "Make a coffee mug",
+    "Create a bridge",
+    "Design a rooftop garden",
+    "Create a luxury villa",
+  ]
+
   const selectRandomPrompt = () => {
     const randomPrompt = promptOptions[Math.floor(Math.random() * promptOptions.length)]
     setPrompt(randomPrompt)
+    setTimeout(() => inputRef.current?.focus(), 100)
   }
 
   return (
-    <div className="min-h-screen bg-black flex flex-col">
+    <div className="min-h-screen bg-background text-white font-sans">
+      {/* Header */}
       <Navbar />
 
-      {/* Show Hero section only when no content is generated */}
-      {!generatedImage && <Hero />}
+      {/* Hero */}
+      <Hero />
 
-      <main className="flex-1 flex flex-col">
-        {/* Main prompt section */}
-        <section className="relative flex-1 flex items-center justify-center px-4 py-20">
-          {/* Background effects */}
-          <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:60px_60px]" />
-          <div className="absolute top-20 left-10 w-72 h-72 bg-logo-purple/20 rounded-full blur-3xl animate-pulse" />
-          <div
-            className="absolute bottom-20 right-10 w-96 h-96 bg-logo-cyan/20 rounded-full blur-3xl animate-pulse"
-            style={{ animationDelay: "1s" }}
-          />
-
-          <div className="max-w-3xl w-full mx-auto z-10">
-            {!generatedImage ? (
-              <div className="text-center mb-8">
-                <h1 className="text-4xl md:text-6xl font-bold mb-6 text-white">
-                  What would you like to <span className="text-logo-gradient">create</span> today?
-                </h1>
-                <p className="text-xl text-gray-300 mb-8">
-                  Describe your product idea and our AI will help you bring it to life in 3D
-                </p>
-              </div>
-            ) : (
-              <div className="flex justify-center mb-8">
-                <div className="flex space-x-4 bg-gray-900/50 backdrop-blur-sm rounded-lg p-1">
-                  <button
-                    className={cn(
-                      "px-4 py-2 rounded-md text-sm font-medium transition-all",
-                      activeTab === "prompt" ? "bg-logo-gradient text-white" : "text-gray-300 hover:text-white",
-                    )}
-                    onClick={() => setActiveTab("prompt")}
-                  >
-                    <Lightbulb className="h-4 w-4 inline mr-2" />
-                    Prompt
-                  </button>
-                  <button
-                    className={cn(
-                      "px-4 py-2 rounded-md text-sm font-medium transition-all",
-                      activeTab === "image" ? "bg-logo-gradient text-white" : "text-gray-300 hover:text-white",
-                    )}
-                    onClick={() => setActiveTab("image")}
-                  >
-                    <ImageIcon className="h-4 w-4 inline mr-2" />
-                    Reference Image
-                  </button>
-                  <button
-                    className={cn(
-                      "px-4 py-2 rounded-md text-sm font-medium transition-all",
-                      activeTab === "description" ? "bg-logo-gradient text-white" : "text-gray-300 hover:text-white",
-                    )}
-                    onClick={() => setActiveTab("description")}
-                  >
-                    <Sparkles className="h-4 w-4 inline mr-2" />
-                    AI Description
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <Card className="bg-gray-900/50 backdrop-blur-sm border border-logo-purple/30 shadow-2xl">
-              <CardContent className={cn("p-6", generatedImage && activeTab !== "prompt" ? "hidden" : "block")}>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="relative">
-                    <Input
-                      ref={inputRef}
-                      type="text"
-                      placeholder="Describe your product idea (e.g., 'A modern office chair with ergonomic design')"
-                      className="bg-black/50 border-logo-purple/30 focus:border-logo-cyan text-white h-14 pl-4 pr-32 text-lg"
-                      value={prompt}
-                      onChange={(e) => setPrompt(e.target.value)}
-                      disabled={isGenerating}
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-logo-purple"
-                      onClick={selectRandomPrompt}
-                      disabled={isGenerating}
-                    >
-                      <Sparkles className="h-4 w-4 mr-1" />
-                      Inspire me
-                    </Button>
-                  </div>
-                  <div className="flex justify-center">
-                    <Button
-                      type="submit"
-                      className="btn-logo-gradient text-white px-8 py-6 text-lg font-medium border-0 shadow-lg hover:shadow-logo-purple/30"
-                      disabled={isGenerating || !prompt.trim()}
-                    >
-                      {isGenerating ? (
-                        <>
-                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                          Generating...
-                        </>
-                      ) : (
-                        <>
-                          Create with AI
-                          <ArrowRight className="ml-2 h-5 w-5" />
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </form>
-              </CardContent>
-
-              {/* Generated Image Tab */}
-              {generatedImage && activeTab === "image" && (
-                <CardContent className="p-6">
-                  <div className="flex flex-col items-center">
-                    <div className="relative w-full max-w-md aspect-square mb-4 border border-logo-purple/30 rounded-lg overflow-hidden">
-                      {isGenerating ? (
-                        <ModelViewerSkeleton />
-                      ) : (
-                        <Image src={generatedImage || "/placeholder.svg"} alt={prompt} fill className="object-cover" />
-                      )}
-                    </div>
-                    <p className="text-gray-300 text-center mb-6">
-                      AI-generated reference image for: <span className="text-logo-cyan">{prompt}</span>
-                    </p>
-                    <Link href="/design">
-                      <Button className="btn-logo-gradient text-white px-8 py-6 text-lg font-medium border-0 shadow-lg hover:shadow-logo-purple/30">
-                        Start 3D Design
-                        <Cube className="ml-2 h-5 w-5" />
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              )}
-
-              {/* Generated Description Tab */}
-              {generatedDescription && activeTab === "description" && (
-                <CardContent className="p-6">
-                  <div className="bg-black/50 border border-logo-purple/20 rounded-lg p-4 mb-6">
-                    <h3 className="text-logo-gradient font-bold mb-3">AI Design Recommendations</h3>
-                    <div className="text-gray-300 whitespace-pre-line">{generatedDescription}</div>
-                  </div>
-                  <div className="flex justify-center">
-                    <Link href="/design">
-                      <Button className="btn-logo-gradient text-white px-8 py-6 text-lg font-medium border-0 shadow-lg hover:shadow-logo-purple/30">
-                        Start 3D Design
-                        <Cube className="ml-2 h-5 w-5" />
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              )}
-            </Card>
-
-            {!generatedImage && (
-              <div className="mt-6 text-center">
-                <p className="text-gray-400 text-sm">
-                  Not sure where to start? Try one of our{" "}
-                  <button
-                    className="text-logo-purple hover:text-logo-cyan underline transition-colors"
-                    onClick={selectRandomPrompt}
-                  >
-                    example prompts
-                  </button>
-                </p>
-              </div>
-            )}
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-10 md:py-20 max-w-5xl">
+        <section className="flex flex-col items-center justify-center text-center mb-16">
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight bg-gradient-to-r from-logo-cyan to-logo-purple text-transparent bg-clip-text mb-4">
+            Design Anything with AI
+          </h1>
+          <p className="text-xl text-muted-foreground max-w-3xl mb-8">
+            Describe your 3D model idea below and let AI turn it into a visual concept.
+          </p>
+          <div className="flex gap-4 justify-center mt-4 flex-wrap">
+            <Button size="lg" variant="outline" onClick={selectRandomPrompt}>
+              Example Prompts
+            </Button>
+            <Link href="/design">
+              <Button size="lg" className="btn-logo-gradient text-white hover:bg-logo-cyan/90">
+                Start 3D Design
+                <Zap className="ml-2 h-4 w-4 animate-pulse" />
+              </Button>
+            </Link>
           </div>
         </section>
 
-        {/* Features preview (only shown before generation) */}
-        {!generatedImage && (
-          <section className="py-16 px-6 border-t border-logo-purple/20">
-            <div className="max-w-6xl mx-auto">
-              <h2 className="text-2xl font-bold text-center mb-12 text-logo-gradient">
-                From Concept to Creation in Minutes
-              </h2>
-              <div className="grid md:grid-cols-3 gap-8">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <FeatureCardSkeleton key={i} />
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
+        {/* Prompt Generator */}
+        <section className="max-w-2xl mx-auto">
+          <Card className="glass overflow-hidden border border-border shadow-lg backdrop-blur-md">
+            <CardHeader className="bg-logo-gradient p-6 pb-2">
+              <CardTitle className="text-2xl font-bold text-white">AI Concept Generator</CardTitle>
+              <CardDescription className="text-gray-300">
+                Type your idea below and let AI create a reference for you.
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent className="p-6">
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="relative">
+                  <Input
+                    ref={inputRef}
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Describe your 3D model..."
+                    disabled={isGenerating}
+                    className="w-full py-6 pl-4 pr-12 text-lg bg-card border-border text-white placeholder:text-muted-foreground focus:border-logo-cyan"
+                  />
+                  {prompt && !isGenerating && (
+                    <button
+                      type="button"
+                      onClick={() => setPrompt("")}
+                      aria-label="Clear input"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Example Prompts */}
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {[
+                    "Modern chair",
+                    "Futuristic car",
+                    "Robot arm",
+                    "Luxury villa",
+                    "Minimalist lamp",
+                    "Smart home",
+                    "Coffee mug",
+                  ].map((example) => (
+                    <button
+                      key={example}
+                      onClick={() => {
+                        setPrompt(example)
+                        setTimeout(() => inputRef.current?.focus(), 100)
+                      }}
+                      className="text-sm text-logo-cyan hover:text-logo-purple underline transition-colors"
+                      type="button"
+                    >
+                      {example}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Generate Button */}
+                <div className="flex justify-end mt-4">
+                  <Button
+                    type="submit"
+                    className="btn-logo-gradient text-white px-6 py-3 rounded-md"
+                    disabled={!prompt.trim() || isGenerating}
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="animate-spin mr-2 h-4 w-4" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        Generate Concept
+                        <Sparkles className="ml-2 h-4 w-4" />
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </form>
+
+              {/* Result Tabs */}
+              {(generatedImage || generatedDescription || error) && (
+                <Tabs defaultValue="description" className="mt-6">
+                  <TabsList className="grid w-full grid-cols-2 bg-slate-800/50"
+                    style={{ boxShadow: "0 0 10px rgba(79, 70, 229, 0.2)" }}>
+                    <TabsTrigger value="description" className="data-[state=active]:bg-logo-cyan/20">
+                      Description
+                    </TabsTrigger>
+                    <TabsTrigger value="image" className="data-[state=active]:bg-logo-cyan/20">
+                      Reference Image
+                    </TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="description" className="mt-4">
+                    <Card className="bg-card border-border">
+                      <CardContent className="pt-6 text-muted-foreground whitespace-pre-line">
+                        {generatedDescription || "Type a prompt above to get started."}
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="image" className="mt-4">
+                    <Card className="bg-card border-border overflow-hidden">
+                      <CardContent className="p-0">
+                        <div className="relative w-full aspect-square overflow-hidden rounded-lg bg-slate-900 border border-border">
+                          {isGenerating ? (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Loader2 className="animate-spin h-10 w-10 text-logo-cyan" />
+                            </div>
+                          ) : generatedImage ? (
+                            <img
+                              src={generatedImage}
+                              alt={prompt || "AI-generated concept"}
+                              width={512}
+                              height={512}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm">
+                              No image yet
+                            </div>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                </Tabs>
+              )}
+
+              {/* CTA Button */}
+              {!isGenerating && generatedImage && (
+                <div className="mt-6 text-center">
+                  <Link href={`/design?prompt=${encodeURIComponent(prompt)}`}>
+                    <Button className="btn-logo-gradient text-white w-full md:w-auto">
+                      Start 3D Design
+                      <Box className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </div>
+              )}
+
+              {/* Error Message */}
+              {error && (
+                <div className="mt-6 p-4 bg-destructive/10 border border-destructive text-destructive text-sm rounded-md">
+                  {error}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </section>
+
+        {/* Architectural Mode */}
+        <section className="mt-20 max-w-5xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">Architectural Design Mode</h2>
+            <p className="text-xl text-muted-foreground">
+              Create buildings, interiors, landscapes, and more using natural language.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            <Card className="glass hover:-translate-y-1 hover:shadow-lg hover:shadow-logo-cyan/20 transition-all duration-300">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Building className="h-6 w-6 mr-2 text-logo-cyan" /> Interior Design
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-400 mb-4">
+                  Plan rooms, add furniture, and visualize spaces before building them.
+                </p>
+                <Button asChild variant="link" className="text-logo-cyan">
+                  <Link href="/design?mode=interior">Try Interior Mode</Link>
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="glass hover:-translate-y-1 hover:shadow-lg hover:shadow-logo-cyan/20 transition-all duration-300">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <LayoutDashboard className="h-6 w-6 mr-2 text-logo-cyan" /> Structural Modeling
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-400 mb-4">
+                  Add walls, doors, windows, and structural elements using natural language.
+                </p>
+                <Button asChild variant="link" className="text-logo-cyan">
+                  <Link href="/design?mode=architectural">Try Architectural Mode</Link>
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="glass hover:-translate-y-1 hover:shadow-lg hover:shadow-logo-cyan/20 transition-all duration-300">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <TreePine className="h-6 w-6 mr-2 text-logo-cyan" /> Urban Planning
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-400 mb-4">
+                  Design cities, parks, roads, and large-scale environments.
+                </p>
+                <Button asChild variant="link" className="text-logo-cyan">
+                  <Link href="/design?mode=urban">Try Urban Mode</Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
       </main>
+
+      {/* Footer */}
+      <footer className="py-6 border-t border-border bg-card/50 backdrop-blur-md text-center text-sm text-muted-foreground">
+        Conceivin3D · Powered by rendairAI & Hunyuan3D
+      </footer>
     </div>
   )
 }

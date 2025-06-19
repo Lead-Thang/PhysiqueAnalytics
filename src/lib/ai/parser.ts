@@ -1,5 +1,5 @@
-import type { UseModelViewerReturn } from "@/hooks/use-model-viewer"
-import type { ModelObject } from "@/types/model-object"
+import type { UseModelViewerReturn } from "../../hooks/use-model-viewer"
+import type { ModelObject } from "../../../types/model-object"
 
 export interface ParsedResult {
   type: "text" | "command"

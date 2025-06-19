@@ -1,25 +1,11 @@
 // types/ai-tools.ts
-export type ToolName =
-  | "add"
-  | "delete"
-  | "update"
-  | "move"
-  | "scale"
-  | "rotate"
-  | "color"
-  | "measure"
-  | "view"
-  | "reset"
-  | "undo"
-  | "redo"
-
-export interface ToolCall {
-  name: ToolName
-  args: Record<string, any>
-}
+import type { ToolCall } from "./tool-call";
 
 export interface AIResponse {
-  text: string
-  audioUrl?: string
-  command?: ToolCall | null
+  text: string;
+  audioUrl?: string;
+  command?: ToolCall | null;
+  timestamp: number; // Unix timestamp indicating when the response was generated
+  status: "success" | "error"; // Indicates the result of the operation
+  error?: string; // Error message if status is "error"
 }

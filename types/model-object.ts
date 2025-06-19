@@ -1,8 +1,9 @@
 import type React from "react"
+import * as THREE from "three"
 export type ModelObject = {
   id: string
   name?: string // Optional display name
-  type: "box" | "sphere" | "cylinder" | "cone" | "torus" | "plane" | "wedge"
+  type: "box" | "sphere" | "cylinder" | "cone" | "torus" | "plane" | "wedge" | "custom" | "extrusion" | "revolution" | "sweep" | "custom-mesh"
   position: [number, number, number]
   rotation: [number, number, number]
   scale: [number, number, number]
@@ -15,6 +16,20 @@ export type ModelObject = {
   parentId?: string | null
   createdAt: number
   updatedAt: number
+  extrudeDepth?: number
+  filletRadius?: number
+  chamferAngle?: number
+  sweepPath?: ModelObject[] // For sweep operations, a path of points
+  revolutionAxis?: "x" | "y" | "z" // Axis of revolution for revolution operations
+  revolutionAngle?: number // Angle of revolution for revolution operations
+  customGeometry?: THREE.BufferGeometry // For custom meshes
+  customMaterial?: THREE.Material // For custom meshes
+  customMesh?: THREE.Mesh // For custom meshes
+  height?: number
+  radius?: number // For Spheres (main radius), or Torus (main radius)
+  tubeRadius?: number // For Torus (tube radius)
+  radiusTop?: number
+  radiusBottom?: number
 }
 
 export type BoxParams = {
@@ -48,16 +63,3 @@ export type GeometryParams =
   | { type: "sphere"; params: SphereParams }
   | { type: "cylinder"; params: CylinderParams }
   | { type: "torus"; params: TorusParams }
-
-export interface Tool {
-  name: string
-  icon: React.ReactNode
-  action: string
-}
-
-export interface ToolCategory {
-  name: string
-  icon: React.ReactNode
-  expanded: boolean
-  tools: Tool[]
-}

@@ -1,10 +1,12 @@
 {
   "compilerOptions": {
-    "lib": ["dom", "dom.iterable", "es6"],
+    "target": "esnext", // Explicitly set target
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
+    "forceConsistentCasingInFileNames": true, // Enforce consistent file casing
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
@@ -12,6 +14,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "noFallthroughCasesInSwitch": true, // Prevent fallthrough bugs in switch statements
     "plugins": [
       {
         "name": "next"
@@ -19,9 +22,13 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
-    }
+      "@/*": ["./*"] // Or be more specific:
+      // "@/components/*": ["components/*"],
+      // "@/lib/*": ["lib/*"],
+      // etc.
+    },
+    "typeRoots": ["./node_modules/@types"] // Explicitly define the main type root
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/types/**/*.d.ts"], // Be explicit about custom .d.ts files
   "exclude": ["node_modules"]
 }
