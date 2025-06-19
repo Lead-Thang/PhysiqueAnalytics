@@ -1,11 +1,16 @@
 // voice-assistant-button.tsx
-import { useModelViewer } from "@/hooks/use-model-viewer"
+import { useModelViewer } from "src/hooks/use-model-viewer"
 import type { ToolCall } from "@/types/tool-call"
 import type { ModelObjectType } from "@/types/model-types" // New import
+import type { ModelObject } from "@/types/model-object" // Added import
 
 // Type guard for validation
-function isValidModelType(type: string): type is ModelObjectType {
-  return ['cube', 'sphere', 'cylinder', 'cone', 'torus'].includes(type)
+function isValidModelType(type: string): type is ModelObject["type"] {
+  return [
+    'box', 'sphere', 'cylinder', 'cone', 'torus', 
+    'plane', 'wedge', 'custom', 'extrusion',
+    'revolution', 'sweep', 'custom-mesh'
+  ].includes(type)
 }
 
 export function VoiceAssistantButton() {
@@ -15,7 +20,7 @@ export function VoiceAssistantButton() {
     if (command.action.startsWith("add-")) {
       const type = command.action.slice(4) as ModelObjectType
       if (isValidModelType(type)) {
-        addObject(type)
+        addObject(type as ModelObject["type"])
         return
       }
     }

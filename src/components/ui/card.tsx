@@ -3,13 +3,28 @@
 import * as React from "react"
 import { cn } from "@/src/lib/utils"
 
-// Types
-interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+// Common props for both div and button versions
+interface CardBaseProps {
   isLoading?: boolean
   variant?: "default" | "elevated" | "glass"
-  action?: () => void
   actionLabel?: string
+  className?: string
+  children?: React.ReactNode
 }
+
+// Props when Card renders as a button
+type CardButtonProps = CardBaseProps & {
+  action: () => void // `action` makes it a button
+} & Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, keyof CardBaseProps | 'onClick'> & {
+  onClick?: React.MouseEventHandler<HTMLButtonElement> // Allow consumer to provide an additional onClick
+};
+
+// Props when Card renders as a div
+type CardDivProps = CardBaseProps & {
+  action?: never // `action` is not present
+} & Omit<React.HTMLAttributes<HTMLDivElement>, keyof CardBaseProps>;
+
+type CardProps = CardButtonProps | CardDivProps;
 
 // Base Styles
 const baseStyles = {
@@ -18,27 +33,48 @@ const baseStyles = {
   glass: "bg-gray-900/60 border border-white/10 backdrop-blur-md shadow-lg",
 }
 
-const Card = React.forwardRef<HTMLDivElement, CardProps>(
-  ({ className, isLoading, variant = "default", action, actionLabel, ...props }, ref) => {
-    const Comp = action ? "button" : "div"
+const Card = React.forwardRef<
+  HTMLButtonElement | HTMLDivElement, // Ref can be for a button or a div
+  CardProps
+>(({ className, isLoading, variant = "default", action, actionLabel, children, ...restProps }, ref) => {
+  const commonClassNames = cn(
+    "rounded-lg border text-card-foreground shadow-sm transition-all duration-300",
+    baseStyles[variant!], // variant has a default, so ! is safe
+    isLoading && "animate-pulse",
+    className
+  );
+
+  if (action) {
+    // Card is a button
+    const { onClick: consumerOnClick, ...buttonSpecificProps } = restProps as Omit<CardButtonProps, keyof CardBaseProps | 'action'>;
     return (
-      <Comp
-        ref={ref}
+      <button
+        ref={ref as React.Ref<HTMLButtonElement>}
         className={cn(
-          "rounded-lg border text-card-foreground shadow-sm transition-all duration-300",
-          baseStyles[variant],
-          isLoading && "animate-pulse",
-          action && "cursor-pointer focus:outline-none focus:ring-2 focus:ring-logo-cyan",
-          className
+          commonClassNames,
+          "cursor-pointer focus:outline-none focus:ring-2 focus:ring-logo-cyan"
         )}
         aria-label={actionLabel}
-        onClick={action}
-        {...(action && { tabIndex: 0 })}
-        {...props}
-      />
-    )
+        onClick={(e) => {
+          action(); // Call the primary action
+          consumerOnClick?.(e); // Call consumer's onClick if provided
+        }}
+        tabIndex={0}
+        {...buttonSpecificProps}
+      >
+        {children}
+      </button>
+    );
   }
-)
+
+  // Card is a div
+  const divSpecificProps = restProps as Omit<CardDivProps, keyof CardBaseProps | 'action'>;
+  return (
+    <div ref={ref as React.Ref<HTMLDivElement>} className={commonClassNames} aria-label={actionLabel} {...divSpecificProps}>
+      {children}
+    </div>
+  );
+});
 Card.displayName = "Card"
 
 const CardHeader = React.forwardRef<

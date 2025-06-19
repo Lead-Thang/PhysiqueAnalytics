@@ -1,5 +1,6 @@
 import type React from "react"
 import * as THREE from "three"
+
 export type ModelObject = {
   id: string
   name?: string // Optional display name
@@ -63,3 +64,17 @@ export type GeometryParams =
   | { type: "sphere"; params: SphereParams }
   | { type: "cylinder"; params: CylinderParams }
   | { type: "torus"; params: TorusParams }
+
+export type ModelObjectType = ModelObject["type"]
+
+/**
+ * Type predicate to validate if a string is a valid ModelObjectType
+ */
+export function isValidModelType(type: string): type is ModelObjectType {
+  const validTypes: ModelObjectType[] = [
+    "box", "sphere", "cylinder", "cone", "torus", 
+    "plane", "wedge", "custom", "extrusion", 
+    "revolution", "sweep", "custom-mesh"
+  ]
+  return validTypes.includes(type as ModelObjectType)
+}

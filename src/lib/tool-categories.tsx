@@ -72,7 +72,6 @@ export const defaultToolCategories: ImportedToolCategory[] = [
       { name: "Subtract", icon: <Minus />, action: "subtract", type: "operation" },
       { name: "Intersect", icon: <Scissors />, action: "intersect", type: "operation" },
       { name: "Extrude", icon: <CornerUpRight />, action: "extrude", type: "operation" },
-      { name: "Duplicate Boolean", icon: <Copy />, action: "duplicate-then-boolean", type: "operation" },
     ],
   },
   {

@@ -133,13 +133,13 @@ export function VoiceAssistant() {
   const dispatchCommand = (command: ToolCall) => {
     try {
       switch (command.action) { // Changed from command.name to command.action
-        case "add": // Assuming "add" is a valid ToolName, though "add-box", "add-sphere" etc. are more specific in tool-call.ts
+        case "add-box":
           addObject(command.params?.type || "box")
           break
-        case "delete":
+        case "delete-selected":  // Changed from "delete" to "delete-selected"
           deleteSelected()
           break
-        case "color":
+        case "change-color": // "change-color" is a valid ToolName
           updateColor(command.params?.color || "#8b5cf6")
           break
         case "scale": // "scale" is a valid ToolName
@@ -154,7 +154,7 @@ export function VoiceAssistant() {
         case "redo":
           viewerActions.redo()
           break
-        case "reset": // "reset" is a valid ToolName
+        case "reset-camera": // "reset-camera" is a valid ToolName
           viewerActions.resetCamera()
           break
         default:

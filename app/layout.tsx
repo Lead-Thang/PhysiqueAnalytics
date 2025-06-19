@@ -16,9 +16,14 @@ export const metadata: Metadata = {
   description: "Professional 3D design and visualization platform for tech companies",
   keywords: ["3D modeling", "CAD", "AI design", "engineering", "product design"],
   authors: [{ name: "Conceivin3D Team" }],
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
   robots: "index, follow",
     generator: 'v0.dev'
+}
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
 }
 
 export default function RootLayout({

@@ -2,6 +2,7 @@
 import type { ToolCall } from "../../../types/tool-call"
 import { promptExamples } from "@/src/lib/ai/prompt-examples"
 import { isValidModelType } from "@/types/model-object"
+import type { ModelObjectType } from "@/types/model-object"
 
 export function parseAIMessage(input: string): ToolCall | null {
   const lowerInput = input.toLowerCase()

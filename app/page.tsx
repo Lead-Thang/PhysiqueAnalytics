@@ -1,26 +1,26 @@
 // src/app/page.tsx
 "use client"
 
-import React, { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect, useRef, Suspense } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Navbar } from "@/components/navbar"
-import { Hero } from "@/components/hero"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Navbar } from "src/components/navbar"
+import { Hero } from "src/components/hero"
+import { Button } from "src/components/ui/button"
+import { Input } from "src/components/ui/input"
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
   CardDescription,
-} from "@/components/ui/card"
+} from "src/components/ui/card"
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "@/components/ui/tabs"
+} from "src/components/ui/tabs"
 import { useSearchParams } from "next/navigation"
 import {
   Box,
@@ -37,6 +37,14 @@ import {
 } from "lucide-react"
 
 export default function HomePage() {
+  return (
+    <Suspense fallback="Loading...">
+      <HomePageContent />
+    </Suspense>
+  )
+}
+
+function HomePageContent() {
   const [prompt, setPrompt] = useState("")
   const [generatedImage, setGeneratedImage] = useState<string | null>(null)
   const [generatedDescription, setGeneratedDescription] = useState<string | null>(null)
@@ -49,10 +57,10 @@ export default function HomePage() {
 
   // Auto-focus input on load
   useEffect(() => {
-    if (!isGenerating && inputRef.current) {
+    if (inputRef.current) {
       inputRef.current.focus()
     }
-  }, [isGenerating])
+  }, [])
 
   // Handle keyboard shortcuts
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -120,7 +128,7 @@ export default function HomePage() {
       <Navbar />
 
       {/* Hero */}
-      <Hero />
+<Hero onPromptSubmit={(prompt) => setPrompt(prompt)} />
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-10 md:py-20 max-w-5xl">

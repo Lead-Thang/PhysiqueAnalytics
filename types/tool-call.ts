@@ -11,9 +11,11 @@ export type ToolName =
   | AddToolAction 
   | "delete-selected"
   | "duplicate-selected"
+  | "duplicate-then-boolean"
 
   // Transformation Actions
   | "move"
+  | "move-3d"
   | "rotate"
   | "scale"
   | "change-color"
@@ -31,6 +33,8 @@ export type ToolName =
   | "reset-camera"
   | "view-wireframe"
   | "view-shaded"
+  | "animate-scene"
+  | "change-camera"
 
   // Help & UI
   | "show-help"
@@ -41,9 +45,24 @@ export type ToolName =
   | "subtract"
   | "intersect"
   | "extrude"
+  | "extrude-edges"
   | "bevel"
+  | "bevel-edges"
   | "fillet"
   | "revolve"
+  | "loop-cut-and-slide"
+  | "offset-edge-slide"
+  | "knife-topology-tool"
+  | "bisect"
+  | "rotate-edge-cw"
+  | "rotate-edge-ccw"
+  | "edge-crease"
+  | "edge-bevel-weight"
+  | "mark-seam"
+  | "clear-seam"
+  | "mark-sharp"
+  | "clear-sharp"
+  | "set-sharpness-by-angle"
 
   // Mesh Editing
   | "subdivide"
@@ -52,7 +71,13 @@ export type ToolName =
   | "edge-collapse"
   | "edge-loop"
   | "bridge-edges"
-  | "dissolve-edges";
+  | "bridge-edge-loops"
+  | "dissolve-edges"
+  | "split"
+  | "separate"
+  | "delete-edges"
+  | "bridge-curves"
+  | "imprint-curve";
 
 // Helper Types
 export type AddToolAction = 
