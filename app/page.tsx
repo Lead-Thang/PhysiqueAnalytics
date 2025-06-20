@@ -128,7 +128,7 @@ function HomePageContent() {
       <Navbar />
 
       {/* Hero */}
-<Hero onPromptSubmit={(prompt) => setPrompt(prompt)} />
+      <Hero onPromptSubmit={(prompt) => setPrompt(prompt)} />
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-10 md:py-20 max-w-5xl">
@@ -162,7 +162,27 @@ function HomePageContent() {
               </CardDescription>
             </CardHeader>
 
+            {/* 添加彩色环形效果的 Logo */}
             <CardContent className="p-6">
+              <div className="relative mb-6">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  {/* 使用现有的 logo 图标 */}
+                  <svg className="w-16 h-16 text-logo-cyan" viewBox="0 0 24 24" fill="none">
+                    {/* 现有 logo 的 SVG 内容 */}
+                    <path d="...existing logo path..." />
+                  </svg>
+                </div>
+                {/* 彩色环形效果 */}
+                <div className="w-32 h-32 rounded-full overflow-hidden">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-full h-full rounded-full" style={{
+                      background: 'conic-gradient(from 45deg, #ff00ff, #00ffff, #00ff00, #ffff00, #ff00ff)'
+                    }}></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 保留原有表单内容 */}
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="relative">
                   <Input
