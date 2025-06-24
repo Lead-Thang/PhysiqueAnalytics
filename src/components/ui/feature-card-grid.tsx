@@ -1,7 +1,7 @@
 "use client"
 
-import { CardWithImageLoader } from "@/src/components/ui/card-with-image-loader"
-import { Button } from "@/src/components/ui/button"
+import { CardWithImageLoader } from "src/components/ui/card-with-image-loader"
+import { Button } from "src/components/ui/button"
 import { useRouter } from "next/navigation"
 
 export function FeatureCardGrid() {

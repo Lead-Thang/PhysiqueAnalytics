@@ -2,9 +2,9 @@
 "use client"
 
 import { useState, useCallback, useRef, useEffect } from "react"
-import { cn } from "@/src/lib/utils"
-import type { ToolCategory } from "@/types/tool-category"
-import { Button } from "@/src/components/ui/button"
+import { cn } from "src/lib/utils"
+import type { ToolCategory } from "src/types/tool-category"
+import { Button } from "src/components/ui/button"
 import { ChevronRight, ChevronDown, GripVertical } from "lucide-react" // X was unused
 
 interface HybridToolbarProps {

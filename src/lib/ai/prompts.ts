@@ -23,12 +23,19 @@ Supported Actions:
 - measure: Measure distance between objects
 - view: Toggle wireframe/shaded mode
 
+For general descriptions like "model a car" or "create a chair", use:
+{
+  "action": "generate",
+  "prompt": "A detailed 3D model of a car"
+}
+
 Example Commands You Should Parse:
 - "Add a box at position [2, 1, -1]" → {"action": "add", "type": "box", "position": [2, 1, -1]}
 - "Make this blue" → {"action": "color", "color": "#3b82f6"}
 - "Delete selected" → {"action": "delete"}
 - "Scale up the box by 20%" → {"action": "scale", "factor": 1.2}
 - "Rotate this cone on Y-axis" → {"action": "rotate", "axis": "y", "angle": 45}
+- "Model a futuristic cityscape" → {"action": "generate", "prompt": "A futuristic cityscape with skyscrapers and flying cars"}
 
 ### Option 2: Natural Language Feedback
 
@@ -39,19 +46,3 @@ If no structured command is needed, provide helpful feedback:
 
 Always be encouraging and provide specific, actionable guidance for 3D modeling tasks.
 `
-
-export const VOICE_COMMANDS = {
-  ADD_OBJECTS: [
-    "add a box",
-    "create a cube",
-    "add a sphere",
-    "create a ball",
-    "add a cylinder",
-    "create a cone",
-    "add a torus",
-    "create a donut",
-  ],
-  MODIFY: ["make it bigger", "scale up", "make it smaller", "scale down", "rotate this", "move this"],
-  COLORS: ["make it red", "change color to blue", "make this green", "color it yellow", "make it purple"],
-  DELETE: ["delete this", "remove selected", "delete the object"],
-}

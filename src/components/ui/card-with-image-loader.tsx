@@ -4,7 +4,7 @@ import * as React from "react"
 import Image from "next/image"
 import { Skeleton } from "./skeleton"
 import { Card } from "./card"
-import { cn } from "@/src/lib/utils"
+import { cn } from "src/lib/utils"
 
 interface CardWithImageLoaderProps {
   src: string

@@ -1,12 +1,12 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Button } from "@/src/components/ui/button"
+import { Button } from "src/components/ui/button"
 import { Mic, MicOff, Loader2, Volume2 } from "lucide-react"
-import { useModelViewer } from "@/src/hooks/use-model-viewer"
-import { callElevenLabsAgent } from "@/src/lib/ai/elevenlabs"
-import { useToast } from "@/src/hooks/use-toast" // Corrected path if needed, assuming it's correct
-import type { ToolCall } from "@/types/tool-call" // Corrected import path for ToolCall
+import { useModelViewer } from "src/hooks/use-model-viewer"
+import { callElevenLabsAgent } from "src/lib/ai/elevenlabs"
+import { useToast } from "src/hooks/use-toast" // Corrected path if needed, assuming it's correct
+import type { ToolCall } from "src/types/tool-call" // Corrected import path for ToolCall
 
 export function VoiceAssistant() {
   const [isListening, setIsListening] = useState(false)

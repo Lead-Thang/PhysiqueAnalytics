@@ -1,10 +1,10 @@
 // src/components/properties-panel.tsx
 "use client"
 
-import { InputWithHelper } from "@/src/components/ui/input-with-helper"
-import { ColorInput } from "@/src/components/ui/color-input"
-import { Button } from "@/src/components/ui/button"
-import type { ModelObject } from "@/types/model-object"
+import { InputWithHelper } from "src/components/ui/input-with-helper"
+import { ColorInput } from "src/components/ui/color-input"
+import { Button } from "src/components/ui/button"
+import type { ModelObject } from "src/types/model-object"
 import { useEffect, useState } from "react"
 
 interface PropertiesPanelProps {

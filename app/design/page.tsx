@@ -1,19 +1,24 @@
 "use client"
 
-import { useState } from "react"
-import { Navbar } from "../../src/components/navbar"
-import { ModelViewer } from "../../src/components/model-viewer"
-import { ChatAssistant } from "../../src/components/chat-assistant"
-import { VoiceAssistant } from "../../src/components/voice-assistant"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../src/components/ui/tabs"
-import { Button } from "../../src/components/ui/button"
-import { Card, CardContent } from "../../src/components/ui/card"
-import { ImageIcon, FileText, ArrowLeft, Sparkles, Undo, Redo, Move } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
+/// <reference types="next" />
+/// <reference types="next-auth" />
+import { useState, useEffect } from "react";
+import { Navbar } from "../../src/components/navbar";
+import { ModelViewer } from "../../src/components/model-viewer";
+import { ChatAssistant } from "../../src/components/chat-assistant";
+import { VoiceAssistant } from "../../src/components/voice-assistant";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../src/components/ui/tabs";
+import { Button } from "../../src/components/ui/button";
+import { Card, CardContent } from "../../src/components/ui/card";
+import { ImageIcon, FileText, ArrowLeft, Sparkles, Undo, Redo, Move } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { getSession } from "next-auth/react";
+import { Input } from "../../src/components/ui/input";
+import { Loader2 } from "lucide-react";
 
 export default function DesignPage() {
-  const [referenceImage, setReferenceImage] = useState<string | null>("/placeholder.svg?height=512&width=512")
+  const [referenceImage, setReferenceImage] = useState<string | null>("/placeholder.svg?height=512&width=512");
   const [description, setDescription] = useState<string | null>(
     "A 3D model with the following features:\n\n" +
       "- Ergonomic design with user comfort in mind\n" +
@@ -21,7 +26,56 @@ export default function DesignPage() {
       "- Sustainable materials for eco-friendly production\n" +
       "- Smart functionality with IoT integration\n\n" +
       "The design emphasizes both form and function, with attention to detail in the user experience.",
-  )
+  );
+  const [prompt, setPrompt] = useState("");
+  const [generatedModel, setGeneratedModel] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  // Move the session check inside an effect
+  useEffect(() => {
+    const checkSession = async () => {
+      const session = await getSession();
+      if (!session) {
+        // This would typically use a redirect in a real Next.js app
+        console.error('Not authenticated');
+      }
+    };
+    
+    checkSession();
+  }, []);
+
+  const generateModel = async () => {
+    if (!prompt.trim()) return;
+    
+    setIsGenerating(true);
+    
+    try {
+      // This would be replaced with a call to your ML model API
+      const response = await fetch('/api/generate-model', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Model generation failed');
+      }
+
+      const data = await response.json();
+      
+      // For demonstration, we're using a placeholder image
+      // In a real implementation, this would be the actual 3D model data
+      setGeneratedModel("/placeholder.svg?height=512&width=512");
+    } catch (error) {
+      console.error('Error generating model:', error);
+      // Fallback to placeholder description
+      setGeneratedModel("/placeholder.svg?height=512&width=512");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   return (
     <div className="h-screen flex flex-col bg-black">
@@ -144,7 +198,7 @@ export default function DesignPage() {
               className="hover:bg-logo-purple/10 text-white"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                <path d="M15.75 5.25a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15.75 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15.75 12.75a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM7.5 19.5a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM9 3.75a1.5 1.5 0 100 3 1.5 1.5 0 000-3zM9 9a1.5 1.5 0 100 3 1.5 1.5 0 000-3zM9 14.25a1.5 1.5 0 100 3 1.5 1.5 0 000-3zM16.5 3.75a1.5 1.5 0 100 3 1.5 1.5 0 000-3zM16.5 9a1.5 1.5 0 100 3 1.5 1.5 0 000-3zM16.5 14.25a1.5 1.5 0 100 3 1.5 1.5 0 000-3z" />
+                <path d="M15.75 5.25a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15.75 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15.75 12.75a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM7.5 19.5a1.5 1.5 0 113 0 1.5 1.5 0 013 0zM9 3.75a1.5 1.5 0 100 3 1.5 1.5 0 000-3zM9 9a1.5 1.5 0 100 3 1.5 1.5 0 000-3zM9 14.25a1.5 1.5 0 100 3 1.5 1.5 0 000-3zM16.5 3.75a1.5 1.5 0 100 3 1.5 1.5 0 000-3zM16.5 9a1.5 1.5 0 100 3 1.5 1.5 0 000-3zM16.5 14.25a1.5 1.5 0 100 3 1.5 1.5 0 000-3z" />
               </svg>
             </Button>
           </div>
@@ -176,8 +230,57 @@ export default function DesignPage() {
             </Button>
           </div>
 
+          {/* Text-to-3D Generation Section */}
+          <div className="absolute top-16 left-4 right-4 z-20 bg-black/70 backdrop-blur-sm rounded-lg p-4 m-4">
+            <h2 className="text-lg font-semibold text-white mb-2">Generate 3D Model from Text</h2>
+            <div className="flex space-x-2">
+              <Input
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder="Describe your 3D model..."
+                className="flex-1 bg-card border-border text-white placeholder:text-muted-foreground"
+              />
+              <Button
+                onClick={generateModel}
+                disabled={isGenerating || !prompt}
+                className="bg-logo-cyan hover:bg-logo-cyan/90 text-white"
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Generate
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+
           {/* 3D Viewer */}
-          <ModelViewer />
+          <div className="flex-1 relative">
+            {generatedModel ? (
+              <div className="relative w-full h-full">
+                <Image
+                  src={generatedModel}
+                  alt={prompt || "Generated 3D model"}
+                  width={512}
+                  height={512}
+                  className="w-full h-full object-contain"
+                />
+                <div className="absolute bottom-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+                  Preview of generated model
+                </div>
+              </div>
+            ) : (
+              <div className="flex-1 flex items-center justify-center bg-gray-900/30">
+                <p className="text-gray-500 text-sm">Your generated 3D model will appear here</p>
+              </div>
+            )}
+          </div>
 
           {/* AI Assistant Toggle Button */}
           <div className="absolute bottom-6 right-6 z-40">
@@ -210,5 +313,5 @@ export default function DesignPage() {
         <ChatAssistant id="ai-chat" />
       </div>
     </div>
-  )
+  );
 }

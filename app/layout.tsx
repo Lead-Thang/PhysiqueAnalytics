@@ -1,10 +1,10 @@
-import type React from "react"
-import type { Metadata } from "next"
-import { Inter } from "next/font/google"
-import "./globals.css"
-import { ThemeProvider } from "@/src/components/theme-provider"
-import { Toaster } from "@/src/components/ui/toaster"
-import { ErrorBoundary } from "@/src/components/error-boundary"
+import type React from "react";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/toaster";
+import { ErrorBoundary } from "@/components/error-boundary";
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   keywords: ["3D modeling", "CAD", "AI design", "engineering", "product design"],
   authors: [{ name: "Conceivin3D Team" }],
   robots: "index, follow",
-    generator: 'v0.dev'
+  generator: 'v0.dev'
 }
 
 export const viewport = {

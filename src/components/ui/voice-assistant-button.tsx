@@ -1,8 +1,8 @@
 // voice-assistant-button.tsx
 import { useModelViewer } from "src/hooks/use-model-viewer"
-import type { ToolCall } from "@/types/tool-call"
-import type { ModelObjectType } from "@/types/model-types" // New import
-import type { ModelObject } from "@/types/model-object" // Added import
+import type { ToolCall } from "src/types/tool-call"
+import type { ModelObjectType } from "src/types/model-types" // New import
+import type { ModelObject } from "src/types/model-object" // Added import
 
 // Type guard for validation
 function isValidModelType(type: string): type is ModelObject["type"] {

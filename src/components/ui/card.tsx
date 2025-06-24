@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { cn } from "@/src/lib/utils"
+import { cn } from "src/lib/utils"
 
 // Common props for both div and button versions
 interface CardBaseProps {

@@ -1,5 +1,5 @@
 // hooks/use-nlp-parser.ts
-import type { UseModelViewerReturn } from "@/src/hooks/use-model-viewer"
+import type { UseModelViewerReturn } from "src/hooks/use-model-viewer"
 
 export function parseNaturalLanguage(input: string, viewerActions: UseModelViewerReturn) {
   const lower = input.toLowerCase()

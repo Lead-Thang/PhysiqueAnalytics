@@ -1,6 +1,6 @@
 "use client"
 
-import { cn } from "@/src/lib/utils"
+import { cn } from "src/lib/utils"
 import type { HTMLAttributes } from "react"
 
 interface SkeletonProps extends HTMLAttributes<HTMLDivElement> {

@@ -1,16 +1,16 @@
 // components/chat-assistant.tsx
 "use client"
 
-import type React from "react"
-import { useRef, useEffect, useState, FC } from "react"
-import { Button } from "@/src/components/ui/button"
-import { Input } from "@/src/components/ui/input"
+import { useEffect, useRef, useState, FC } from "react"
+import type { FormEvent } from "react" // Import specific event types for better type safety
+import { Button } from "src/components/ui/button"
+import { Input } from "src/components/ui/input"
 import {
   Card,
   CardHeader,
   CardTitle,
   CardContent,
-} from "@/src/components/ui/card"
+} from "src/components/ui/card"
 import {
   MessageCircle,
   X,
@@ -22,19 +22,98 @@ import {
   Loader2,
   Zap,
 } from "lucide-react"
-import { cn } from "@/src/lib/utils" // Corrected path
-import { useAIAssistant } from "@/src/hooks/use-ai-assistant"
-import { useModelViewer } from "@/src/hooks/use-model-viewer"
-import { ToolName } from "@/types/tool-call" // Corrected path
+import { cn } from "src/lib/utils"
+import { useAIAssistant } from "src/hooks/use-ai-assistant"
+import { useModelViewer } from "src/hooks/use-model-viewer"
+import { ToolName } from "src/types/tool-call"
+import type { ToolAction } from "src/types/tool-category"
 import type { Message } from "ai"
-import type { ToolAction } from "@/types/tool-category"
 
 export function ChatAssistant({ id }: { id?: string }) {
   const [isOpen, setIsOpen] = useState(true)
   const [isMinimized, setIsMinimized] = useState(false)
 
   const viewerState = useModelViewer()
-  const aiState = useAIAssistant(viewerState)
+  const aiState = useAIAssistant({
+    ...viewerState,
+    executeToolAction: (action: ToolName, params?: Record<string, any>) => {
+      try {
+        switch (action) {
+          case "add-box":
+            viewerState.addObject("box")
+            break
+          case "add-sphere":
+            viewerState.addObject("sphere")
+            break
+          case "add-cylinder":
+            viewerState.addObject("cylinder")
+            break
+          case "add-cone":
+            viewerState.addObject("cone")
+            break
+          case "add-torus":
+            viewerState.addObject("torus")
+            break
+          case "add-plane":
+            viewerState.addObject("plane")
+            break
+          case "delete-selected":
+            viewerState.deleteSelected()
+            break
+          case "change-color":
+            if (params?.color && typeof params.color === 'string') {
+              viewerState.updateColor(params.color)
+            } else {
+              console.warn("Change color: 'color' parameter missing or invalid", params)
+            }
+            break
+          case "scale":
+            if (params?.scale && Array.isArray(params.scale) && params.scale.length === 3 && params.scale.every(s => typeof s === 'number')) {
+              const [x, y, z] = params.scale as [number, number, number]
+              viewerState.updateScale("x", x)
+              viewerState.updateScale("y", y)
+              viewerState.updateScale("z", z)
+            } else if (typeof params?.factor === 'number' && viewerState.selectedObject) {
+              const currentObject = viewerState.objects.find(obj => obj.id === viewerState.selectedObject)
+              if (currentObject) {
+                viewerState.updateScale("x", currentObject.scale[0] * params.factor)
+                viewerState.updateScale("y", currentObject.scale[1] * params.factor)
+                viewerState.updateScale("z", currentObject.scale[2] * params.factor)
+              }
+            } else if (params?.axis && typeof params.value === 'number' && ['x', 'y', 'z'].includes(params.axis)) {
+              viewerState.updateScale(params.axis as "x" | "y" | "z", params.value)
+            } else {
+              console.warn("Scale: 'scale' array, 'factor', or 'axis/value' parameter missing or invalid", params)
+            }
+            break
+          case "move":
+            const handlePositionParam = (axis: "x" | "y" | "z", value?: unknown) => {
+              if (typeof value === 'number') viewerState.updatePosition(axis, value)
+            }
+            if (params?.position && Array.isArray(params.position) && params.position.length === 3) {
+              handlePositionParam("x", params.position[0])
+              handlePositionParam("y", params.position[1])
+              handlePositionParam("z", params.position[2])
+            } else {
+              handlePositionParam("x", params?.x)
+              handlePositionParam("y", params?.y)
+              handlePositionParam("z", params?.z)
+            }
+            break
+          case "undo":
+            viewerState.undo()
+            break
+          case "redo":
+            viewerState.redo()
+            break
+          default:
+            console.warn(`Unhandled tool action: ${action}`, params)
+        }
+      } catch (error) {
+        console.error(`Error executing tool action "${action}":`, error)
+      }
+    },
+  })
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -57,7 +136,7 @@ export function ChatAssistant({ id }: { id?: string }) {
     e.preventDefault()
     if (!aiState.input.trim()) return
 
-    aiState.handleSubmit(e)
+    aiState.handleSubmit(e as unknown as React.FormEvent<HTMLFormElement>)
   }
 
   // Optionally, ensure your useAIAssistant hook triggers executeToolCall for any tool/action returned by Gemini
@@ -194,46 +273,8 @@ export function ChatAssistant({ id }: { id?: string }) {
             {/* Bottom of message list */}
             <div ref={messagesEndRef} />
           </div>
-
-          {/* Input */}
-          <div className="p-3 border-t border-logo-purple/20">
-            <form onSubmit={handleSubmit} className="flex items-center space-x-2">
-              <Input
-                ref={inputRef}
-                value={aiState.input}
-                onChange={aiState.handleInputChange}
-                placeholder="Ask Gemini to do anything: 'Add a cube', 'Switch to light mode', 'Open autosave'..."
-                className="flex-1 border-logo-purple/30 focus:border-logo-cyan bg-slate-900/50 text-white placeholder:text-gray-400"
-                disabled={aiState.isLoading}
-                onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault(); // Prevent default Enter behavior (e.g., newline in textarea)
-                    if (!aiState.input.trim()) return;
-                    // Directly call the AI state's submit handler.
-                    // This is the Vercel AI SDK's handler which can be called without a form event.
-                    aiState.handleSubmit();
-                  }
-                }}
-              />
-              <Button
-                type="submit"
-                size="icon"
-                disabled={aiState.isLoading || !aiState.input.trim()}
-                className="btn-logo-gradient text-white border-0 hover:bg-logo-cyan/90"
-              >
-                {aiState.isLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Send className="h-4 w-4" />
-                )}
-              </Button>
-            </form>
-            <div className="text-xs text-gray-500 mt-1 text-center">
-              Powered by <span className="text-yellow-400">Gemini AI</span> • Type anything you want done, like “Add a cube”, “Switch to dark mode”, “Open autosave”, etc.
-            </div>
-          </div>
         </CardContent>
-      )}
-    </Card>
+      </Card>
+    </>
   )
 }

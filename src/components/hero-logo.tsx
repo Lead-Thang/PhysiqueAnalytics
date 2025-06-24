@@ -10,7 +10,7 @@ export function HeroLogo({ size = 120 }: { size?: number }) {
           style={{ width: `${size}px`, height: `${size}px` }}
         >
           <Image
-            src="/logo.png"
+            src="Conceivin3D.logo.png"
             alt="Conceivin3D Logo"
             width={size}
             height={size}

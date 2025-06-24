@@ -5,9 +5,11 @@ import type React from "react"
 import { useState } from "react"
 import Link from "next/link"
 import { Button } from "./ui/button"
-import { Menu, X, Lightbulb, CuboidIcon as Cube, Layers } from "lucide-react"
-import { Logo } from "./logo"
+import { Menu, X, Lightbulb, Cuboid as Cube, Layers } from "lucide-react" // Using default import syntax to match logo.tsx export
+import Image from "next/image"
 import { ThemeToggle } from "./theme-toggle"
+
+export { Navbar } from "./navbar"  // 添加显式导出以确保组件可访问
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
@@ -16,10 +18,26 @@ export function Navbar() {
     <nav className="bg-black/95 backdrop-blur-sm border-b border-logo-purple/20 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Left: Logo - Logo component already contains Link */}
-          <div className="flex items-center">
-            <Logo />
-          </div>
+          {/* Left: Logo */}
+          <Link href="/" className="flex-shrink-0 flex items-center">
+            <div className="relative h-8 w-8">
+              <Image
+                src="/Conceivin.logo.png"
+                alt="Conceivin3D Logo"
+                fill
+                onError={(e) => {
+                  console.error('Logo failed to load');
+                  // Fallback to text logo if image fails to load
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  const parent = target.parentElement;
+                  if (parent) {
+                    parent.innerHTML = '<span class=\"text-logo-gradient font-bold\">Conceivin3D</span>';
+                  }
+                }}
+              />
+            </div>
+          </Link>
 
           {/* Center: Desktop Navigation */}
           <div className="hidden md:block">

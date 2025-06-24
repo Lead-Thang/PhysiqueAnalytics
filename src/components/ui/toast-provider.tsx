@@ -1,8 +1,8 @@
 "use client"
 
 import type * as React from "react"
-import { useToast } from "@/src/hooks/use-toast"
-import { Toast, ToastTitle, ToastDescription, ToastClose } from "@/src/components/ui/toast"
+import { useToast } from "src/hooks/use-toast"
+import { Toast, ToastTitle, ToastDescription, ToastClose } from "src/components/ui/toast"
 
 interface ToastProviderProps {
   children: React.ReactNode

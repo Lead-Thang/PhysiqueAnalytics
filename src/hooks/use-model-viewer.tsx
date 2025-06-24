@@ -7,9 +7,9 @@ import { useState, useCallback, useMemo } from "react"
 import {
   defaultToolCategories as canonicalToolCategories,
   ToolCategory,
-} from "@/src/lib/tool-categories"
-import type { ModelObject } from "@/types/model-object"
-import { ToolName } from "@/types/tool-call" // Corrected path
+} from "src/lib/tool-categories"
+import type { ModelObject } from "src/types/model-object"
+import { ToolName } from "src/types/tool-call" // Corrected path
 
 // Define the return type for the hook
 export interface UseModelViewerReturn {
@@ -30,13 +30,14 @@ export interface UseModelViewerReturn {
   toolCategories: ToolCategory[]
   setToolCategories: React.Dispatch<React.SetStateAction<ToolCategory[]>>
   executeToolAction: (action: ToolName, params?: Record<string, any>) => void
+  setFeedback: (message: string) => void; // Add this line to the interface
   // Include any other properties/methods returned by viewerActions if they were separate
   // For example, if history and historyIndex were directly returned:
   // history: ModelObject[][];
   // historyIndex: number;
 }
 
-export function useModelViewer(): UseModelViewerReturn {
+export function useModelViewer() {
   const [objects, setObjects] = useState<ModelObject[]>([
     {
       id: "1",
@@ -55,6 +56,9 @@ export function useModelViewer(): UseModelViewerReturn {
   const [selectedObject, setSelectedObject] = useState<string | null>(null)
   // Use the canonical tool categories
   const [toolCategories, setToolCategories] = useState<ToolCategory[]>(canonicalToolCategories)
+
+  // Add feedback state
+  const [feedback, setFeedback] = useState<string | null>(null);
 
   // History helpers
   const addToHistory = useCallback(
@@ -310,5 +314,8 @@ export function useModelViewer(): UseModelViewerReturn {
     [viewerActions] // Depend on the memoized viewerActions
   );
 
-  return { ...viewerActions, executeToolAction };
+  return {
+    ...viewerActions,
+    setFeedback,
+  };
 }

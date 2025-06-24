@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
-    "target": "esnext", // Explicitly set target
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "target": "es5",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -22,13 +26,26 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"] // Or be more specific:
-      // "@/components/*": ["components/*"],
-      // "@/lib/*": ["lib/*"],
-      // etc.
+      "@/*": [
+        "./src/*"
+      ],
+      "@/lib/*": [
+        "./lib/*"
+      ],
+      "@/components/logo": [
+        "./src/components/logo.tsx"
+      ]
     },
-    "typeRoots": ["./node_modules/@types"] // Explicitly define the main type root
+    "typeRoots": [
+      "./node_modules/@types"
+    ] // Explicitly define the main type root
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/types/**/*.d.ts"], // Be explicit about custom .d.ts files
-  "exclude": ["node_modules"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

@@ -1,16 +1,16 @@
 "use client"
 
 import type React from "react"
-import { useState, useRef, useCallback, useEffect, Suspense } from "react"
+import { useState, useRef, useCallback, useEffect, Suspense, useMemo } from "react"
 import { Canvas, useFrame, extend } from "@react-three/fiber"
 import { OrbitControls, Grid, GizmoHelper, GizmoViewport, Environment } from "@react-three/drei"
-import { useModelViewer } from "@/src/hooks/use-model-viewer"
-import { PropertiesPanel } from "@/src/components/PropertiesPanel"
-import { Button } from "@/src/components/ui/button"
-import { Card, CardContent, CardHeader } from "@/src/components/ui/card"
+import { useModelViewer } from "src/hooks/use-model-viewer"
+import { PropertiesPanel } from "src/components/PropertiesPanel"
+import { Button } from "src/components/ui/button"
+import { Card, CardContent, CardHeader } from "src/components/ui/card"
 import { Box, GripVertical, X, ChevronDown, ChevronRight } from "lucide-react"
-import type { ModelObject } from "@/types/model-object"
-import type { ToolCategory } from "@/types/tool-category"
+import type { ModelObject } from "src/types/model-object"
+import type { ToolCategory } from "src/types/tool-category"
 
 import * as THREE from "three"
 
@@ -88,7 +88,7 @@ function ModelPrimitive({
   onSelect: () => void
   meshRef: (ref: THREE.Mesh | null) => void
 }) {
-  const renderGeometry = () => {
+  const geometry = useMemo(() => {
     switch (object.type) {
       case "box":
         return <boxGeometry args={[1, 1, 1]} />
@@ -107,7 +107,7 @@ function ModelPrimitive({
       default:
         return <boxGeometry args={[1, 1, 1]} />
     }
-  }
+  }, [object.type])
 
   return (
     <mesh
@@ -118,7 +118,7 @@ function ModelPrimitive({
       onClick={onSelect}
       ref={meshRef}
     >
-      {renderGeometry()}
+      {geometry}
       <meshStandardMaterial
         color={object.color}
         wireframe={isSelected}
@@ -128,7 +128,7 @@ function ModelPrimitive({
       {/* Selection outline using wireframe instead of HTML */}
       {isSelected && (
         <mesh position={[0, 0, 0]} scale={[1.05, 1.05, 1.05]}>
-          {renderGeometry()}
+          {geometry}
           <meshBasicMaterial color="#00ffff" wireframe transparent opacity={0.3} />
         </mesh>
       )}

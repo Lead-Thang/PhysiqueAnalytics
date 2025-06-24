@@ -1,21 +1,24 @@
-import type { UseModelViewerReturn } from "../../hooks/use-model-viewer"
-import type { ModelObject } from "../../../types/model-object"
+import type { UseModelViewerReturn } from "../../hooks/use-model-viewer";
+import type { ModelObject } from "../../types/model-object";
 
 export interface ParsedResult {
-  type: "text" | "command"
-  text?: string
-  action?: string
-  params?: Record<string, any>
+  type: "text" | "command";
+  text?: string;
+  action?: string;
+  params?: Record<string, any>;
 }
 
-export function parseAIResponse(text: string, viewerActions: UseModelViewerReturn): ParsedResult {
-  const lowerText = text.toLowerCase()
+export function parseAIResponse(
+  text: string,
+  viewerActions: UseModelViewerReturn
+): ParsedResult {
+  const lowerText = text.toLowerCase();
 
   // Create/Add commands
   if (lowerText.includes("create") || lowerText.includes("add")) {
-    const objectType = extractObjectType(lowerText)
-    const position = extractPosition(lowerText)
-    const color = extractColor(lowerText)
+    const objectType = extractObjectType(lowerText);
+    const position = extractPosition(lowerText);
+    const color = extractColor(lowerText);
 
     return {
       type: "command",
@@ -25,7 +28,7 @@ export function parseAIResponse(text: string, viewerActions: UseModelViewerRetur
         position: position || [0, 0.5, 0],
         color: color || "#8b5cf6",
       },
-    }
+    };
   }
 
   // Delete commands
@@ -33,51 +36,55 @@ export function parseAIResponse(text: string, viewerActions: UseModelViewerRetur
     return {
       type: "command",
       action: "delete",
-    }
+    };
   }
 
   // Scale commands
-  if (lowerText.includes("scale up") || lowerText.includes("bigger") || lowerText.includes("larger")) {
-    const factor = extractScaleFactor(lowerText) || 1.2
+  if (
+    lowerText.includes("scale up") ||
+    lowerText.includes("bigger") ||
+    lowerText.includes("larger")
+  ) {
+    const factor = extractScaleFactor(lowerText) || 1.2;
     return {
       type: "command",
       action: "update",
       params: {
         scale: [factor, factor, factor],
       },
-    }
+    };
   }
 
   if (lowerText.includes("scale down") || lowerText.includes("smaller")) {
-    const factor = extractScaleFactor(lowerText) || 0.8
+    const factor = extractScaleFactor(lowerText) || 0.8;
     return {
       type: "command",
       action: "update",
       params: {
         scale: [factor, factor, factor],
       },
-    }
+    };
   }
 
   // Color commands
-  const color = extractColor(lowerText)
+  const color = extractColor(lowerText);
   if (color) {
     return {
       type: "command",
       action: "update",
       params: { color },
-    }
+    };
   }
 
   // Move commands
   if (lowerText.includes("move") || lowerText.includes("position")) {
-    const position = extractPosition(lowerText)
+    const position = extractPosition(lowerText);
     if (position) {
       return {
         type: "command",
         action: "update",
         params: { position },
-      }
+      };
     }
   }
 
@@ -85,38 +92,46 @@ export function parseAIResponse(text: string, viewerActions: UseModelViewerRetur
   return {
     type: "text",
     text,
-  }
+  };
 }
 
 // Helper functions
 function extractObjectType(text: string): ModelObject["type"] | undefined {
-  if (text.includes("box") || text.includes("cube")) return "box"
-  if (text.includes("sphere") || text.includes("ball")) return "sphere"
-  if (text.includes("cylinder")) return "cylinder"
-  if (text.includes("cone")) return "cone"
-  if (text.includes("torus") || text.includes("donut")) return "torus"
-  if (text.includes("plane") || text.includes("flat")) return "plane"
-  if (text.includes("wedge")) return "wedge"
-  return undefined
+  if (text.includes("box") || text.includes("cube")) return "box";
+  if (text.includes("sphere") || text.includes("ball")) return "sphere";
+  if (text.includes("cylinder")) return "cylinder";
+  if (text.includes("cone")) return "cone";
+  if (text.includes("torus") || text.includes("donut")) return "torus";
+  if (text.includes("plane") || text.includes("flat")) return "plane";
+  if (text.includes("wedge")) return "wedge";
+  return undefined;
 }
 
 function extractPosition(text: string): [number, number, number] | null {
   // Look for patterns like "at [1, 2, 3]" or "position 1 2 3"
-  const bracketMatch = text.match(/\[([0-9.,\s-]+)\]/i)
+  const bracketMatch = text.match(/\[([0-9.,\s-]+)\]/i);
   if (bracketMatch) {
-    const coords = bracketMatch[1].split(",").map((s) => Number.parseFloat(s.trim()))
+    const coords = bracketMatch[1]
+      .split(",")
+      .map((s) => Number.parseFloat(s.trim()));
     if (coords.length === 3 && coords.every((n) => !isNaN(n))) {
-      return coords as [number, number, number]
+      return coords as [number, number, number];
     }
   }
 
   // Look for "at x y z" pattern
-  const coordMatch = text.match(/(?:at|position)\s+(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)/i)
+  const coordMatch = text.match(
+    /(?:at|position)\s+(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)/i
+  );
   if (coordMatch) {
-    return [Number.parseFloat(coordMatch[1]), Number.parseFloat(coordMatch[2]), Number.parseFloat(coordMatch[3])]
+    return [
+      Number.parseFloat(coordMatch[1]),
+      Number.parseFloat(coordMatch[2]),
+      Number.parseFloat(coordMatch[3]),
+    ];
   }
 
-  return null
+  return null;
 }
 
 function extractColor(text: string): string | null {
@@ -133,35 +148,35 @@ function extractColor(text: string): string | null {
     black: "#000000",
     gray: "#6b7280",
     grey: "#6b7280",
-  }
+  };
 
   for (const [colorName, colorValue] of Object.entries(colorMap)) {
     if (text.includes(colorName)) {
-      return colorValue
+      return colorValue;
     }
   }
 
   // Look for hex colors
-  const hexMatch = text.match(/#[0-9a-fA-F]{6}/i)
+  const hexMatch = text.match(/#[0-9a-fA-F]{6}/i);
   if (hexMatch) {
-    return hexMatch[0]
+    return hexMatch[0];
   }
 
-  return null
+  return null;
 }
 
 function extractScaleFactor(text: string): number | null {
   // Look for percentages like "20%" or "by 20%"
-  const percentMatch = text.match(/(\d+)%/i)
+  const percentMatch = text.match(/(\d+)%/i);
   if (percentMatch) {
-    return 1 + Number.parseFloat(percentMatch[1]) / 100
+    return 1 + Number.parseFloat(percentMatch[1]) / 100;
   }
 
   // Look for factors like "by 2" or "2x"
-  const factorMatch = text.match(/(?:by\s+|x\s*)(\d+(?:\.\d+)?)/i)
+  const factorMatch = text.match(/(?:by\s+|x\s*)(\d+(?:\.\d+)?)/i);
   if (factorMatch) {
-    return Number.parseFloat(factorMatch[1])
+    return Number.parseFloat(factorMatch[1]);
   }
 
-  return null
+  return null;
 }
