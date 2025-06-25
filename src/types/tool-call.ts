@@ -15,9 +15,18 @@ export type ToolName =
 
   // Transformation Actions
   | "move"
-  | "move-3d"
+  | "move-x"
+  | "move-y"
+  | "move-z"
   | "rotate"
+  | "rotate-x"
+  | "rotate-y"
+  | "rotate-z"
   | "scale"
+  | "scale-uniform"
+  | "scale-x"
+  | "scale-y"
+  | "scale-z"
   | "change-color"
 
   // History Actions
@@ -98,6 +107,8 @@ export type AddToolAction =
 export interface ToolCall {
   action: ToolName;
   params?: Record<string, any>;
+  mode?: "free" | "x-axis" | "y-axis" | "z-axis"; // Optional field for interaction constraints
+  handleType?: "translate" | "rotate" | "scale"; // Optional field to identify handle behavior
 }
 
 // Exhaustiveness Check (for development only)

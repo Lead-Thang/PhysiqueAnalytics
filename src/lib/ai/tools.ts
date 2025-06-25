@@ -27,6 +27,72 @@ export interface ToolDefinition {
 export const TOOLS: ToolDefinition[] = [
   {
     type: "function",
+    name: "move", // Match ToolName
+    description: "Move selected object along a specific axis or freely",
+    parameters: {
+      type: "object",
+      properties: {
+        axis: {
+          type: "string",
+          enum: ["x", "y", "z", "free"],
+          default: "free",
+          description: "Axis of movement or freeform"
+        },
+        distance: {
+          type: "number",
+          default: 1,
+          description: "Distance to move along the specified axis."
+        }
+      },
+      required: ["axis"]
+    }
+  },
+  {
+    type: "function",
+    name: "rotate", // Match ToolName
+    description: "Rotate selected object around a specific axis or freely",
+    parameters: {
+      type: "object",
+      properties: {
+        axis: {
+          type: "string",
+          enum: ["x", "y", "z", "free"],
+          default: "free",
+          description: "Axis of rotation or freeform"
+        },
+        angle: {
+          type: "number",
+          default: 90,
+          description: "Angle of rotation in degrees."
+        }
+      },
+      required: ["axis"]
+    }
+  },
+  {
+    type: "function",
+    name: "scale", // Match ToolName
+    description: "Scale selected object uniformly or per-axis",
+    parameters: {
+      type: "object",
+      properties: {
+        axis: {
+          type: "string",
+          enum: ["x", "y", "z", "uniform"],
+          default: "uniform",
+          description: "Axis of scaling or uniform"
+        },
+        factor: {
+          type: "number",
+          default: 1.1,
+          description: "Scaling factor (e.g., 1.1 means 10% increase)"
+        }
+      },
+      required: ["axis"]
+    }
+  },
+  {
+    type: "function",
     name: "add", // Renamed for consistency with SYSTEM_PROMPT action "add"
     description: "Add a new 3D object to the scene",
     parameters: {
