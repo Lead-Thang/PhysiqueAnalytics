@@ -9,7 +9,7 @@ import {
   ToolCategory,
 } from "src/lib/tool-categories"
 import type { ModelObject } from "src/types/model-object"
-import { ToolName } from "src/types/tool-call" // Corrected path
+import type { ToolName } from "src/types/tool-call" // Corrected path
 
 // Define the return type for the hook
 export interface UseModelViewerReturn {
@@ -30,11 +30,7 @@ export interface UseModelViewerReturn {
   toolCategories: ToolCategory[]
   setToolCategories: React.Dispatch<React.SetStateAction<ToolCategory[]>>
   executeToolAction: (action: ToolName, params?: Record<string, any>) => void
-  setFeedback: (message: string) => void; // Add this line to the interface
-  // Include any other properties/methods returned by viewerActions if they were separate
-  // For example, if history and historyIndex were directly returned:
-  // history: ModelObject[][];
-  // historyIndex: number;
+  setFeedback: (message: string) => void
 }
 
 export function useModelViewer() {
@@ -201,34 +197,32 @@ export function useModelViewer() {
   }, [])
 
   // Memoize viewer actions to prevent re-creation on every render
-  // This is important for the executeToolAction closure
   const viewerActions = useMemo(() => ({
-      objects,
-      selectedObject,
-      setObjects,
-      setSelectedObject,
-      addObject,
-      deleteSelected,
-      updatePosition,
-      updateRotation,
-      updateScale,
-      updateColor,
-      resetCamera,
-      addToHistory,
-      undo,
-      redo,
-      toolCategories,
-      setToolCategories,
-      // executeToolAction will be added below, after viewerActions is defined
+    objects,
+    selectedObject,
+    setObjects,
+    setSelectedObject,
+    addObject,
+    deleteSelected,
+    updatePosition,
+    updateRotation,
+    updateScale,
+    updateColor,
+    resetCamera,
+    addToHistory,
+    undo,
+    redo,
+    toolCategories,
+    setToolCategories,
   }), [
-      objects, selectedObject, setObjects, setSelectedObject, addObject, deleteSelected,
-      updatePosition, updateRotation, updateScale, updateColor, resetCamera,
-      addToHistory, undo, redo, toolCategories, setToolCategories
+    objects, selectedObject, setObjects, setSelectedObject, addObject, deleteSelected,
+    updatePosition, updateRotation, updateScale, updateColor, resetCamera,
+    addToHistory, undo, redo, toolCategories, setToolCategories
   ]);
 
-  // Execute tool call from UI or AI
+  // Add executeToolAction after viewerActions is defined
   const executeToolAction = useCallback(
-    (action: ToolName, params?: Record<string, any>) => { // Changed ToolAction to ToolName
+    (action: ToolName, params?: Record<string, any>) => {
       try {
         switch (action) {
           case "add-box":
@@ -316,6 +310,7 @@ export function useModelViewer() {
 
   return {
     ...viewerActions,
+    executeToolAction, // Add executeToolAction to returned value
     setFeedback,
   };
 }

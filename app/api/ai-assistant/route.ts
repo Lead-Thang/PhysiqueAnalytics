@@ -41,8 +41,8 @@ export async function POST(req: NextRequest) {
     if (process.env.XAI_API_KEY) {
       try {
         response = await generateGrokResponse(latestMessage, messages)
-      } catch (grokError) {
-        console.warn("Grok API failed, using fallback:", grokError)
+      } catch (conceivoError) {
+        console.warn("Conceivo API failed, using fallback:", conceivoError)
         response = generateSimpleResponse(latestMessage)
       }
     } else {
@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
       message: response,
       timestamp: new Date().toISOString(),
       success: true,
-      powered_by: process.env.XAI_API_KEY ? "Grok AI" : "Fallback AI",
+      powered_by: "Conceivo AI",
     })
   } catch (error) {
     console.error("AI Assistant error:", {
@@ -86,23 +86,7 @@ async function generateGrokResponse(message: string, messages: any[]): Promise<s
       messages: [
         {
           role: "system",
-          content: `You are Conceivo, the AI assistant for Conceivin3D — a professional 3D design platform.
-
-You are an expert in 3D modeling, CAD operations, engineering design, and product development. 
-
-When users ask about 3D modeling actions, provide helpful guidance and suggest specific steps they can take in the 3D modeling interface.
-
-Keep responses concise but informative. Be encouraging and provide practical, actionable advice.
-
-Focus on:
-- 3D modeling techniques
-- CAD operations (extrude, revolve, sweep, loft)
-- Design optimization
-- Material selection
-- Manufacturing considerations
-- Best practices
-
-Always be helpful, professional, and encouraging.`,
+          content: `You are Conceivo, the AI assistant for Conceivin3D — a professional 3D design platform.\n\nYou are an expert in 3D modeling, CAD operations, engineering design, and product development. \n\nWhen users ask about 3D modeling actions, provide helpful guidance and suggest specific steps they can take in the 3D modeling interface.\n\nKeep responses concise but informative. Be encouraging and provide practical, actionable advice.\n\nFocus on:\n- 3D modeling techniques\n- CAD operations (extrude, revolve, sweep, loft)\n- Design optimization\n- Material selection\n- Manufacturing considerations\n- Best practices\n\nAlways be helpful, professional, and encouraging.`,
         },
         ...messages.slice(-5), // Include last 5 messages for context
       ],
@@ -155,11 +139,11 @@ function generateSimpleResponse(message: string): string {
 
   // Greetings
   if (lowerMessage.includes("hello") || lowerMessage.includes("hi") || lowerMessage.includes("hey")) {
-    return "Hello! I'm your Conceivin3D assistant powered by Grok AI. I'm here to help you with 3D modeling, creating objects, and using the tools. What would you like to create today?"
+    return "Hello! I'm your Conceivin3D assistant powered by Conceivo AI. I'm here to help with 3D modeling, creating objects, and using the tools. What would you like to create today?"
   }
 
   // Default response
-  return "I'm your 3D modeling assistant powered by Grok AI! I can help you create objects, modify properties, and use the tools. What would you like to do? Try asking about adding shapes, changing colors, or using specific tools."
+  return "I'm your 3D modeling assistant powered by Conceivo AI! I can help you create objects, modify properties, and use the tools. What would you like to do? Try asking about adding shapes, changing colors, or using specific tools."
 }
 
 // Handle CORS preflight requests

@@ -1,17 +1,14 @@
 "use client"
 
-import type React from "react"
-
+import React from "react"
 import { useState } from "react"
 import Link from "next/link"
 import { Button } from "./ui/button"
-import { Menu, X, Lightbulb, Cuboid as Cube, Layers } from "lucide-react" // Using default import syntax to match logo.tsx export
+import { Menu, X, Lightbulb, Cuboid as Cube, Layers } from "lucide-react"
 import Image from "next/image"
 import { ThemeToggle } from "./theme-toggle"
 
-export { Navbar } from "./navbar"  // 添加显式导出以确保组件可访问
-
-export function Navbar() {
+export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
 
   return (

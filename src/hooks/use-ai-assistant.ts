@@ -32,7 +32,7 @@ export function useAIAssistant(viewerActions?: UseModelViewerReturn) {
       id: "welcome",
       role: "assistant",
       content:
-        "Hello! I'm your Conceivin3D assistant. I can help with 3D modeling, measurements, and design suggestions. Try asking me about creating objects, changing properties, or using the tools!",
+        "Hello! I'm Conceivo, your AI assistant for Conceivin3D. I can help with 3D modeling, measurements, and design suggestions. Try asking me about creating objects, changing properties, or using the tools!",
     },
   ]);
   const [input, setInput] = useState("");
@@ -117,7 +117,7 @@ export function useAIAssistant(viewerActions?: UseModelViewerReturn) {
       _executeApiCall(input.trim());
     },
     [input, isLoading, _executeApiCall]
- );
+  );
 
   const sendCommand = useCallback(
     (commandText: string) => {
@@ -143,7 +143,7 @@ export function useAIAssistant(viewerActions?: UseModelViewerReturn) {
         id: "welcome",
         role: "assistant",
         content:
-          "Hello! I'm your Conceivin3D assistant. How can I help you with 3D modeling today?",
+          "Hello! I'm Conceivo, your AI assistant for Conceivin3D. How can I help you with 3D modeling today?",
       },
     ]);
     setError(null);
@@ -277,15 +277,15 @@ function processCommand(
 export const SYSTEM_PROMPT = `You are Conceivo, the AI assistant for Conceivin3D — a professional 3D design platform.
 You understand CAD modeling, geometry, materials, and engineering concepts.
 
-When users ask about actions like "Add a red cube" or "Scale up by 20%", respond in one of two formats:
+When users ask about actions like \"Add a red cube\" or \"Scale up by 20%\", respond in one of two formats:
 
 ### Option 1: Structured Command (for direct execution)
 
 {
-  "action": "add",
-  "type": "box",
-  "position": [1, 0.5, 1],
-  "color": "#ef4444"
+  \"action\": \"add\",
+  \"type\": \"box\",
+  \"position\": [1, 0.5, 1],
+  \"color\": \"#ef4444\"
 }
 
 Supported Actions:
@@ -299,18 +299,18 @@ Supported Actions:
 - view: Toggle wireframe/shaded mode
 
 Example Commands You Should Parse:
-- "Add a box at position [2, 1, -1]" → {"action": "add", "type": "box", "position": [2, 1, -1]}
-- "Make this blue" → {"action": "color", "color": "#3b82f6"}
-- "Delete selected" → {"action": "delete"}
-- "Scale up the box by 20%" → {"action": "scale", "factor": 1.2}
-- "Rotate this cone on Y-axis" → {"action": "rotate", "axis": "y", "angle": 45}
-- "Model a futuristic cityscape" → {"action": "generate", "prompt": "A futuristic cityscape with skyscrapers and flying cars"}
+- \"Add a box at position [2, 1, -1]\" → {\"action\": \"add\", \"type\": \"box\", \"position\": [2, 1, -1]}
+- \"Make this blue\" → {\"action\": \"color\", \"color\": \"#3b82f6\"}
+- \"Delete selected\" → {\"action\": \"delete\"}
+- \"Scale up the box by 20%\" → {\"action\": \"scale\", \"factor\": 1.2}
+- \"Rotate this cone on Y-axis\" → {\"action\": \"rotate\", \"axis\": \"y\", \"angle\": 45}
+- \"Model a futuristic cityscape\" → {\"action\": \"generate\", \"prompt\": \"A futuristic cityscape with skyscrapers and flying cars\"}
 
 ### Option 2: Natural Language Feedback
 
 If no structured command is needed, provide helpful feedback:
-"Just added a red box at position [1, 0.5, 1]"
-"Your model has been scaled up by 20%"
-"I've updated the material to smooth plastic"
+\"Just added a red box at position [1, 0.5, 1]\"
+\"Your model has been scaled up by 20%\"
+\"I've updated the material to smooth plastic\"
 
 Always be encouraging and provide specific, actionable guidance for 3D modeling tasks`;

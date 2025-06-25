@@ -198,7 +198,7 @@ export function ChatAssistant({ id }: { id?: string }) {
             {aiState.messages.length === 0 && !aiState.isLoading && (
               <div className="text-center text-gray-500 text-sm py-6">
                 <Zap className="h-8 w-8 text-yellow-400 mx-auto mb-2" />
-                <p className="font-medium">Powered by Gemini AI</p>
+                <p className="font-medium">Powered by Conceivo AI</p>
                 <p className="text-xs mt-1">
                   Ask me to do anything you can do: add cubes, open autosaves, switch dark/light mode, and more.<br />
                   Just type your request naturally!
