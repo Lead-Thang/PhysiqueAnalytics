@@ -273,8 +273,29 @@ export function ChatAssistant({ id }: { id?: string }) {
             {/* Bottom of message list */}
             <div ref={messagesEndRef} />
           </div>
+          {/* Input Form */}
+          <form
+            onSubmit={handleSubmit}
+            className="p-3 border-t border-logo-purple/20 flex items-center space-x-2"
+          >
+            <Input
+              ref={inputRef}
+              value={aiState.input}
+              onChange={aiState.handleInputChange}
+              placeholder="Ask me anything..."
+              className="flex-1 bg-slate-900/80 border-slate-700 text-white placeholder:text-gray-500"
+              disabled={aiState.isLoading}
+            />
+            <Button type="submit" size="icon" disabled={aiState.isLoading || !aiState.input.trim()} className="btn-logo-gradient border-0">
+              {aiState.isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
+            </Button>
+          </form>
         </CardContent>
-      </Card>
-    </>
+      )}
+    </Card>
   )
 }
