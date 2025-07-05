@@ -16,7 +16,16 @@ declare global {
   }
 }
 
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Move environment variable declarations before supabase initialization
+const supabaseUrl = process.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
+
+// Validate Supabase environment variables
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Supabase URL and Anon Key must be defined in environment variables');
+}
+
+const supabase = createClient(supabaseUrl!, supabaseAnonKey!); // Add non-null assertions after validation
 
 // Types
 interface PhysiqueMetrics {
@@ -79,14 +88,6 @@ const PhysiqueContext = createContext<PhysiqueContextType | undefined>(undefined
 
 interface PhysiqueProviderProps {
   children: ReactNode;
-}
-
-// Validate Supabase environment variables
-const supabaseUrl = process.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Supabase URL and Anon Key must be defined in environment variables');
 }
 
 export const PhysiqueProvider: React.FC<PhysiqueProviderProps> = ({ children }) => {
@@ -185,10 +186,11 @@ export const PhysiqueProvider: React.FC<PhysiqueProviderProps> = ({ children }) 
       if (uploadError) throw uploadError;
 
       // Mock AI backend call (replace with real endpoint)
+      const storageUrl = `${supabaseUrl}/storage/v1/object/public/physique-images/${fileName}`;
       const response = await fetch('/api/analyze-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageUrl: `${supabase.storageUrl}/physique-images/${fileName}`, userId: user.id }),
+        body: JSON.stringify({ imageUrl: storageUrl, userId: user.id }),
       });
 
       if (!response.ok) throw new Error('Failed to analyze image');

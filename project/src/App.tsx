@@ -8,7 +8,7 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { PhysiqueProvider, usePhysique } from './context/PhysiqueContext';
-import Dashboard from './components/Dashboard';
+import Dashboard from './components/DashboardPhysiqueContext';
 import PhysiqueHeader from './components/PhysiqueHeader';
 import PhysiqueAuth from './components/PhysiqueAuth';
 import Export from './components/Export';

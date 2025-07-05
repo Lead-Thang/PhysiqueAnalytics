@@ -38,7 +38,9 @@ const PhysiqueAnalysis: React.FC<PhysiqueAnalysisProps> = ({ metrics }: { metric
     if (e.target.files && e.target.files[0]) {
       try {
         const result = await analyzeImage(e.target.files[0]);
-        setPoseAnalysis(result?.poseAnalysis || null);
+        if (result && typeof result === 'object' && 'poseAnalysis' in result) {
+          setPoseAnalysis((result as { poseAnalysis?: PoseAnalysis }).poseAnalysis || null);
+        }
         setError(null);
       } catch (err) {
         setError('Failed to analyze image. Please ensure the file is a valid JPG or PNG.');
@@ -118,7 +120,7 @@ const PhysiqueAnalysis: React.FC<PhysiqueAnalysisProps> = ({ metrics }: { metric
 
       {/* Error Message */}
       {error && (
-        <div className="rounded-lg bg-red-50 border border-red-200 p-4 mb-6 flex items-start">
+        <div className="rounded-lg bg-red-50 border border-red-200 p-4 mb-6 flex items-start" role="alert" aria-live="polite">
           <div className="p-2 bg-red-100 rounded-full text-red-600">
             <Info className="h-5 w-5" />
           </div>
@@ -127,6 +129,7 @@ const PhysiqueAnalysis: React.FC<PhysiqueAnalysisProps> = ({ metrics }: { metric
             <button
               className="mt-2 text-xs text-red-500 hover:underline"
               onClick={() => setError(null)}
+              aria-label="Dismiss error message"
             >
               Dismiss
             </button>

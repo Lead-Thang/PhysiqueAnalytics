@@ -1,8 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 declare module 'react' {
-  // Keep existing exports
-  export * from 'react';
-
   // Add missing types
   namespace React {
     type RefObject<T> = { current: T | null };
@@ -22,7 +19,10 @@ import React, { useRef, useState, useCallback, useEffect, useMemo } from 'react'
 import { RefreshCcw, Camera, X } from 'lucide-react';
 import * as tf from '@tensorflow/tfjs';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Html } from '@react-three/drei';
+import { OrbitControls, Html, Segments } from '@react-three/drei';
+import { LineSegments2 } from 'three/examples/jsm/objects/LineSegments2';
+import { LineSegments } from 'three/examples/jsm/objects/LineSegments';
+import { Line2 } from 'three/examples/jsm/objects/Line2';
 import * as THREE from 'three';
 import Webcam from 'react-webcam';
 import { POSE_LANDMARKS, Pose } from '@mediapipe/pose';
@@ -124,7 +124,7 @@ const HologramEffect: React.FC<{ position?: [number, number, number]; scale?: nu
 
 // Pose Skeleton in 3D
 const PoseSkeleton3D: React.FC<{ landmarks: PoseLandmark[] }> = ({ landmarks }) => {
-  const linesRef = useRef<THREE.Line>(null);
+  const linesRef = useRef<LineSegments2>(null);
 
   const connections = [
     // Spine
@@ -373,6 +373,9 @@ const PoseCanvas: React.FC<{
     </div>
   );
 };
+
+interface BodyVisualizerProps {}
+// ... existing code...
 
 // Main Component
 const PhysiqueVisualizer: React.FC<BodyVisualizerProps> = () => {
